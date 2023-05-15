@@ -1,6 +1,7 @@
 package kms
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -8,7 +9,8 @@ import (
 )
 
 type Service struct {
-	e *echo.Echo
+	e  *echo.Echo
+	db DB
 }
 
 type ResponseBody struct {
@@ -27,6 +29,11 @@ func initService() *Service {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
+	db, err := NewBadgerDB("./wallet/db/")
+	if err != nil {
+		log.Panic("error initializing wallet db")
+	}
+	serve.db = db
 	serve.e = e
 	return &serve
 }
