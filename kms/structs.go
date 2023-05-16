@@ -17,3 +17,10 @@ type WalletRequest struct {
 type WalletResponse struct {
 	WalletId string
 }
+
+type TransactionResponse struct {
+	ApiKey      string
+	WalletId    string
+	ProxyUrl    string
+	Transaction string
+}
