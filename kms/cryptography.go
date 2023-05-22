@@ -6,7 +6,6 @@ import (
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/x509"
@@ -14,6 +13,8 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type Key struct {
@@ -26,7 +27,7 @@ func generateKey(password, algorithm string) (*Key, error) {
 	key := &Key{}
 	switch algorithm {
 	case "secp256k1":
-		privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
 		if err != nil {
 			return nil, err
 		}

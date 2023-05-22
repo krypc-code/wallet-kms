@@ -113,7 +113,7 @@ func (serve *Service) FetchAndExecuteTxn() {
 
 func (serve *Service) SignAndSubmitTxn(tx *TransactionResponse) error {
 	ctx := context.Background()
-	txnBytes, err := base64.StdEncoding.DecodeString(tx.Transaction)
+	txnBytes, err := base64.RawStdEncoding.DecodeString(tx.Transaction)
 	if err != nil {
 		return err
 	}
