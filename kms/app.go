@@ -267,6 +267,7 @@ func (s *Service) deployContract(c echo.Context) error {
 		ABI:     string(rawDecodedText),
 		Bin:     u.ByteCode,
 		ChainId: chainId.String(),
+		Params:  u.Params,
 	}
 	address, txn, _, err := DeploySmartContract(transactOpts, client, contractMeta)
 	if err != nil {
