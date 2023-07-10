@@ -1,4 +1,4 @@
-package kms
+package store
 
 import (
 	"context"
