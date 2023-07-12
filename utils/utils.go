@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	AddNcWallet       = "/wallet/nc/addWallet"
-	GetWalletNonce    = "/wallet/nc/getNonce"
-	UpdateWalletNonce = "/wallet/nc/updateNonce"
+	AddNcWallet       = "/ncWallet/addWallet"
+	GetWalletNonce    = "/ncWallet/getNonce"
+	UpdateWalletNonce = "/ncWallet/updateNonce"
 )
 
 type ResponseBody struct {
