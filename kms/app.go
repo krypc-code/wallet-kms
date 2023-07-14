@@ -47,10 +47,11 @@ func initService() *Service {
 	serve.db = db
 	serve.vault = vault
 	serve.config = &utils.Config{
-		AuthToken:  os.Getenv("AUTH_TOKEN"),
-		ProxyUrl:   os.Getenv("PROXY_URL"),
-		Endpoint:   os.Getenv("ENDPOINT"),
-		InstanceId: os.Getenv("WALLET_INSTANCE_ID"),
+		AuthToken:      os.Getenv("AUTH_TOKEN"),
+		ProxyUrl:       os.Getenv("PROXY_URL"),
+		Endpoint:       os.Getenv("ENDPOINT"),
+		InstanceId:     os.Getenv("WALLET_INSTANCE_ID"),
+		SubscriptionId: os.Getenv("SUBSCRIPTION_ID"),
 	}
 	serve.e = e
 	return &serve

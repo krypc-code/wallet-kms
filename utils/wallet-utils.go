@@ -8,6 +8,7 @@ func AddWalletToPlatform(config *Config, request *AddWalletRequest) error {
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = config.AuthToken
 	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
 	if err := HttpCall("POST", config.ProxyUrl+AddNcWallet, request, &res, header); err != nil {
 		return err
 	}
@@ -23,6 +24,7 @@ func GetNonceFromPlatform(config *Config, request *NonceRequest) (uint64, error)
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = config.AuthToken
 	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
 	if err := HttpCall("POST", config.ProxyUrl+GetWalletNonce, request, &res, header); err != nil {
 		return 0, err
 	}
@@ -42,6 +44,7 @@ func UpdatePlatformNonce(config *Config, request *NonceRequest) error {
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = config.AuthToken
 	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
 	if err := HttpCall("POST", config.ProxyUrl+UpdateWalletNonce, request, &res, header); err != nil {
 		return err
 	}

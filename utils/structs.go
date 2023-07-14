@@ -5,10 +5,11 @@ const (
 )
 
 type Config struct {
-	AuthToken  string
-	ProxyUrl   string
-	Endpoint   string
-	InstanceId string
+	AuthToken      string
+	ProxyUrl       string
+	Endpoint       string
+	InstanceId     string
+	SubscriptionId string
 }
 
 type WalletRequest struct {

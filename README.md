@@ -36,4 +36,15 @@ curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", "to":"0xc2de797fab7
 ```bash
 {"Status":"SUCCESS","Message":"","Data":{"txHash":"0xe19f631de5667ee0a1f0ce37f8fd50b46ba32b58946d310cccc0524be8e1e43b"}}
 ```
+
+### Deploy Contract
+
+#### Command
+```bash 
+curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", }' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/submitTransaction
+```
+
+```bash
+{"Status":"SUCCESS","Message":"","Data":{"txHash":"0xe19f631de5667ee0a1f0ce37f8fd50b46ba32b58946d310cccc0524be8e1e43b"}}
+```
 ---
