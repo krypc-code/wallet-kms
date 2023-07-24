@@ -29,11 +29,11 @@ type TransactionResponse struct {
 }
 
 type DeployContractRequest struct {
-	WalletId string        `json:"walletId"`
-	ByteCode string        `json:"byteCode"`
-	ABI      string        `json:"abi"`
-	Params   []interface{} `json:"params"`
-	ChainId  int64         `json:"chainId"`
+	WalletId string  `json:"walletId"`
+	ByteCode string  `json:"byteCode"`
+	ABI      string  `json:"abi"`
+	Params   []Param `json:"params"`
+	ChainId  int64   `json:"chainId"`
 }
 
 type DeployContractResponse struct {

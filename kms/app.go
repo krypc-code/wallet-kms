@@ -168,6 +168,9 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		}
 		txnOpts.Nonce = big.NewInt(int64(nonce))
 		params, err := utils.ConvertParamsAsPerTypes(u.Params)
+		if err != nil {
+			return utils.BadRequestResponse(c, "error converting params "+err.Error(), nil)
+		}
 		txn, err := contract.SmartContractTransactor.Contract.Transact(txnOpts, u.Method, params...)
 		if err != nil {
 			return utils.UnexpectedFailureResponse(c, "error sending txn to contract : "+err.Error(), nil)
@@ -268,8 +271,12 @@ func (s *Service) deployContract(c echo.Context) error {
 		ABI:     string(rawDecodedText),
 		Bin:     u.ByteCode,
 		ChainId: chainId.String(),
-		Params:  u.Params,
 	}
+	params, err := utils.ConvertParamsAsPerTypes(u.Params)
+	if err != nil {
+		return utils.BadRequestResponse(c, "error converting params "+err.Error(), nil)
+	}
+	contractMeta.Params = params
 	address, txn, _, err := DeploySmartContract(transactOpts, client, contractMeta)
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())

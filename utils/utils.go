@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"math/big"
@@ -78,14 +79,68 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		switch param.Type {
 		case "string":
 			response = append(response, param.Value)
-		case "uint", "uint8", "uint16", "uint32", "uint64", "uint128", "uint256":
+		case "uint", "uint64":
+			response = append(response, uint64(param.Value.(float64)))
+		case "uint8":
+			response = append(response, uint8(param.Value.(float64)))
+		case "uint16":
+			response = append(response, uint16(param.Value.(float64)))
+		case "uint32":
+			response = append(response, uint32(param.Value.(float64)))
+		case "uint128", "uint256":
 			response = append(response, big.NewInt(int64(param.Value.(float64))))
 		case "bool":
 			response = append(response, param.Value)
 		case "address":
 			response = append(response, common.HexToAddress(param.Value.(string)))
-		case "int", "int8", "int16", "int32", "int64", "int128", "int256":
+		case "int", "int64":
+			response = append(response, int64(param.Value.(float64)))
+		case "int8":
+			response = append(response, int8(param.Value.(float64)))
+		case "int16":
+			response = append(response, int16(param.Value.(float64)))
+		case "int32":
+			response = append(response, int32(param.Value.(float64)))
+		case "int128", "int256":
 			response = append(response, big.NewInt(int64(param.Value.(float64))))
+		case "bytes":
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, bytes)
+		case "bytes32":
+			var value [32]byte
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			if err != nil {
+				return nil, err
+			}
+			copy(value[:], bytes)
+			response = append(response, value)
+		case "bytes4":
+			var value [4]byte
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			if err != nil {
+				return nil, err
+			}
+			copy(value[:], bytes)
+			response = append(response, bytes[:4])
+		case "bytes8":
+			var value [8]byte
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			if err != nil {
+				return nil, err
+			}
+			copy(value[:], bytes)
+			response = append(response, bytes[:8])
+		case "bytes16":
+			var value [16]byte
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			if err != nil {
+				return nil, err
+			}
+			copy(value[:], bytes)
+			response = append(response, bytes[:16])
 		default:
 			response = append(response, param.Value)
 		}
