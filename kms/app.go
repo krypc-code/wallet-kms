@@ -54,6 +54,9 @@ func initService() *Service {
 		SubscriptionId: os.Getenv("SUBSCRIPTION_ID"),
 	}
 	serve.e = e
+	if err := serve.ScheduleService(); err != nil {
+		log.Panic("error initializing schedular : ", err.Error())
+	}
 	return &serve
 }
 
@@ -134,7 +137,6 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	if err := json.Unmarshal(walletBytes, wallet); err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	chainId := big.NewInt(int64(u.ChainID))
 	var to common.Address
 	if u.To != "" {
 		to = common.HexToAddress(u.To)
@@ -142,6 +144,10 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	client, err := utils.GetEthereumClient(ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	chainId, err := client.ChainID(ctx)
+	if err != nil {
+		s.e.Logger.Errorf(err.Error())
 	}
 	nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 	if err != nil {
@@ -246,7 +252,10 @@ func (s *Service) deployContract(c echo.Context) error {
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	chainId := big.NewInt(u.ChainId)
+	chainId, err := client.ChainID(ctx)
+	if err != nil {
+		s.e.Logger.Errorf(err.Error())
+	}
 	var txnHash string
 	rawDecodedText, err := base64.StdEncoding.DecodeString(u.ABI)
 	if err != nil {

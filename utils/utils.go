@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -17,9 +18,11 @@ import (
 )
 
 const (
-	AddNcWallet       = "/ncWallet/addWallet"
-	GetWalletNonce    = "/ncWallet/getNonce"
-	UpdateWalletNonce = "/ncWallet/updateNonce"
+	AddNcWallet              = "/ncWallet/addWallet"
+	GetWalletNonce           = "/ncWallet/getNonce"
+	UpdateWalletNonce        = "/ncWallet/updateNonce"
+	FetchDeployRecords       = "/ncWallet/fetchDeployRecords"
+	FetchTransactionsRecords = "/ncWallet/fetchTransactionRecords"
 )
 
 type ResponseBody struct {
@@ -80,38 +83,74 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		case "string":
 			response = append(response, param.Value)
 		case "uint", "uint64":
-			response = append(response, uint64(param.Value.(float64)))
+			value, err := strconv.ParseUint(param.Value, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, value)
 		case "uint8":
-			response = append(response, uint8(param.Value.(float64)))
+			value, err := strconv.ParseUint(param.Value, 10, 8)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, uint8(value))
 		case "uint16":
-			response = append(response, uint16(param.Value.(float64)))
+			value, err := strconv.ParseUint(param.Value, 10, 16)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, uint16(value))
 		case "uint32":
-			response = append(response, uint32(param.Value.(float64)))
+			value, err := strconv.ParseUint(param.Value, 10, 32)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, uint32(value))
 		case "uint128", "uint256":
-			response = append(response, big.NewInt(int64(param.Value.(float64))))
+			var value *big.Int
+			value.SetString(param.Value, 10)
+			response = append(response, value)
 		case "bool":
 			response = append(response, param.Value)
 		case "address":
-			response = append(response, common.HexToAddress(param.Value.(string)))
+			response = append(response, common.HexToAddress(param.Value))
 		case "int", "int64":
-			response = append(response, int64(param.Value.(float64)))
+			value, err := strconv.ParseInt(param.Value, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, value)
 		case "int8":
-			response = append(response, int8(param.Value.(float64)))
+			value, err := strconv.ParseInt(param.Value, 10, 8)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, int8(value))
 		case "int16":
-			response = append(response, int16(param.Value.(float64)))
+			value, err := strconv.ParseInt(param.Value, 10, 16)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, int16(value))
 		case "int32":
-			response = append(response, int32(param.Value.(float64)))
+			value, err := strconv.ParseInt(param.Value, 10, 32)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, int32(value))
 		case "int128", "int256":
-			response = append(response, big.NewInt(int64(param.Value.(float64))))
+			var value *big.Int
+			value.SetString(param.Value, 10)
+			response = append(response, value)
 		case "bytes":
-			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
 			if err != nil {
 				return nil, err
 			}
 			response = append(response, bytes)
 		case "bytes32":
 			var value [32]byte
-			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
 			if err != nil {
 				return nil, err
 			}
@@ -119,7 +158,7 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, value)
 		case "bytes4":
 			var value [4]byte
-			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
 			if err != nil {
 				return nil, err
 			}
@@ -127,7 +166,7 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, bytes[:4])
 		case "bytes8":
 			var value [8]byte
-			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
 			if err != nil {
 				return nil, err
 			}
@@ -135,7 +174,7 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, bytes[:8])
 		case "bytes16":
 			var value [16]byte
-			bytes, err := base64.RawStdEncoding.DecodeString(param.Value.(string))
+			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
 			if err != nil {
 				return nil, err
 			}

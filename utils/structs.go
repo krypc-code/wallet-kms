@@ -33,7 +33,6 @@ type DeployContractRequest struct {
 	ByteCode string  `json:"byteCode"`
 	ABI      string  `json:"abi"`
 	Params   []Param `json:"params"`
-	ChainId  int64   `json:"chainId"`
 }
 
 type DeployContractResponse struct {
@@ -43,7 +42,6 @@ type DeployContractResponse struct {
 
 type SignAndSubmitTxn struct {
 	WalletId string  `json:"walletId"`
-	ChainID  uint64  `json:"chainId,omitempty"`
 	To       string  `json:"to"`
 	Gas      uint64  `json:"gas"`
 	Value    int64   `json:"value"`
@@ -56,8 +54,8 @@ type SignAndSubmitTxn struct {
 }
 
 type Param struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
 }
 
 type SignAndSubmitTxnResponse struct {
@@ -72,11 +70,40 @@ type AddWalletRequest struct {
 }
 
 type NonceRequest struct {
-	WalletId string `json:"walletId,omitempty"`
-	ChainId  string `json:"chainId"`
+	WalletId        string `json:"walletId"`
+	ChainId         string `json:"chainId"`
+	ReferenceId     string `json:"referenceId"`
+	Type            string `json:"type"`
+	TxnHash         string `json:"txnHash"`
+	ContractAddress string `json:"contractAddress"`
 }
 
-type GetNcNonceResponse struct {
-	WalletId string `json:"walletId,omitempty"`
-	Nonce    uint64 `json:"nonce,omitempty"`
+// type GetNcNonceResponse struct {
+// 	WalletId string `json:"walletId,omitempty"`
+// 	Nonce    uint64 `json:"nonce,omitempty"`
+// }
+
+type Deploy struct {
+	ReferenceId    string  `json:"referenceId"`
+	SubscriptionId string  `json:"subscriptionId"`
+	WalletId       string  `json:"walletId"`
+	InstanceId     string  `json:"instanceId"`
+	ByteCode       string  `json:"byteCode"`
+	ABI            string  `json:"abi"`
+	Params         []Param `json:"params"`
+}
+
+type Transaction struct {
+	ReferenceId    string  `json:"referenceId" bson:"reference_id"`
+	SubscriptionId string  `json:"subscriptionId" bson:"subscription_id"`
+	WalletId       string  `json:"walletId" bson:"wallet_id"`
+	InstanceId     string  `json:"instanceId" bson:"instance_id"`
+	To             string  `json:"to" bson:"to"`
+	Gas            uint64  `json:"gas" bson:"gas"`
+	Value          int64   `json:"value" bson:"value"`
+	Method         string  `json:"method" bson:"method"`
+	Params         []Param `json:"params" bson:"params"`
+	IsContractTxn  bool    `json:"isContractTxn" bson:"is_contract_txn"`
+	ContractABI    string  `json:"contractABI" bson:"contract_abi"`
+	Data           string  `json:"data" bson:"data"`
 }
