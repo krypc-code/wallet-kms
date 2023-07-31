@@ -46,6 +46,10 @@ func initService() *Service {
 	}
 	serve.db = db
 	serve.vault = vault
+	if os.Getenv("AUTH_TOKEN") == "" || os.Getenv("PROXY_URL") == "" || os.Getenv("ENDPOINT") == "" || os.Getenv("WALLET_INSTANCE_ID") == "" ||
+		os.Getenv("SUBSCRIPTION_ID") == "" || os.Getenv("SCHEDULER_DURATION") == "" {
+		log.Panic("environment variables not set.")
+	}
 	serve.config = &utils.Config{
 		AuthToken:      os.Getenv("AUTH_TOKEN"),
 		ProxyUrl:       os.Getenv("PROXY_URL"),
