@@ -23,7 +23,6 @@ func (s *Service) ScheduleService() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("starting scheduler")
 	for {
 		time.Sleep(time.Duration(duration) * time.Second)
 		fmt.Println("fetching records")
@@ -37,7 +36,6 @@ func (s *Service) DeployContracts(ctx context.Context) {
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 	}
-	fmt.Println(records)
 	for _, record := range records {
 		walletId, err := uuid.Parse(record.WalletId)
 		if err != nil {
@@ -113,7 +111,6 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 	}
-	fmt.Println(records)
 	for _, record := range records {
 		walletId, err := uuid.Parse(record.WalletId)
 		if err != nil {

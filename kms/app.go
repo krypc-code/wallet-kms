@@ -54,9 +54,7 @@ func initService() *Service {
 		SubscriptionId: os.Getenv("SUBSCRIPTION_ID"),
 	}
 	serve.e = e
-	if err := serve.ScheduleService(); err != nil {
-		log.Panic("error initializing schedular : ", err.Error())
-	}
+	go serve.ScheduleService()
 	return &serve
 }
 
