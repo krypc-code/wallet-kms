@@ -99,7 +99,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			continue
 		}
 		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txn.Hash().String(),
-			ContractAddress: address.String()})
+			ContractAddress: address.String(), Type: "deploy"})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 		}
@@ -224,7 +224,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 			}
 			txnHash = txn.Hash().String()
 		}
-		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash})
+		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash, Type: "txn"})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 		}
