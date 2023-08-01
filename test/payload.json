@@ -1,0 +1,6 @@
+{
+  "recovery_shares": 5,
+
+  "recovery_threshold": 3
+
+}
