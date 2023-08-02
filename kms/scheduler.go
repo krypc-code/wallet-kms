@@ -99,7 +99,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			continue
 		}
 		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txn.Hash().String(),
-			ContractAddress: address.String(), Type: "deploy"})
+			ContractAddress: address.String(), Type: "deploy", ReferenceId: record.ReferenceId})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 		}

@@ -26,6 +26,10 @@ const (
 	FetchTransactionsRecords = "/ncWallet/fetchTransactionRecords"
 )
 
+type Request struct {
+	Mode string `json:"mode"`
+	Name string `json:"name"`
+}
 type ResponseBody struct {
 	Status  string
 	Message string
@@ -108,7 +112,7 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			}
 			response = append(response, uint32(value))
 		case "uint128", "uint256":
-			var value *big.Int
+			value := new(big.Int)
 			value, ok := value.SetString(param.Value, 10)
 			if !ok {
 				return nil, fmt.Errorf("converting uint128, uint256 error")
@@ -143,7 +147,7 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			}
 			response = append(response, int32(value))
 		case "int128", "int256":
-			var value *big.Int
+			value := new(big.Int)
 			value, ok := value.SetString(param.Value, 10)
 			if !ok {
 				return nil, fmt.Errorf("converting int128, int256 error")

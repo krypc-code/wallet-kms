@@ -58,7 +58,7 @@ func UpdatePlatformNonce(config *Config, request *NonceRequest) error {
 }
 
 func GetAllDeployRecords(config *Config) ([]Deploy, error) {
-	var req interface{}
+	req := Request{}
 	res := ResponseBody{}
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
@@ -83,7 +83,7 @@ func GetAllDeployRecords(config *Config) ([]Deploy, error) {
 }
 
 func GetAllTransactionRecords(config *Config) ([]Transaction, error) {
-	var req interface{}
+	req := Request{}
 	res := ResponseBody{}
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
