@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -108,7 +109,10 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, uint32(value))
 		case "uint128", "uint256":
 			var value *big.Int
-			value.SetString(param.Value, 10)
+			value, ok := value.SetString(param.Value, 10)
+			if !ok {
+				return nil, fmt.Errorf("converting uint128, uint256 error")
+			}
 			response = append(response, value)
 		case "bool":
 			response = append(response, param.Value)
@@ -140,7 +144,10 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, int32(value))
 		case "int128", "int256":
 			var value *big.Int
-			value.SetString(param.Value, 10)
+			value, ok := value.SetString(param.Value, 10)
+			if !ok {
+				return nil, fmt.Errorf("converting int128, int256 error")
+			}
 			response = append(response, value)
 		case "bytes":
 			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
