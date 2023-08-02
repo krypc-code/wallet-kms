@@ -77,6 +77,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
+		transactOpts.From = common.HexToAddress(wallet.Address)
 		transactOpts.Nonce = big.NewInt(int64(nonce))
 		tipCap, _ := client.SuggestGasTipCap(ctx)
 		feeCap, _ := client.SuggestGasPrice(ctx)
