@@ -72,12 +72,11 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		transactOpts, err := wallet.TransactionOptionsWithKMSSigning(ctx, s.vault, chainId)
+		transactOpts, err := TransactionOptionsWithKMSSigning(ctx, wallet, s.vault, chainId)
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		transactOpts.From = common.HexToAddress(wallet.Address)
 		transactOpts.Nonce = big.NewInt(int64(nonce))
 		tipCap, _ := client.SuggestGasTipCap(ctx)
 		feeCap, _ := client.SuggestGasPrice(ctx)
@@ -162,7 +161,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 				s.e.Logger.Errorf(err.Error())
 				continue
 			}
-			txnOpts, err := wallet.TransactionOptionsWithKMSSigning(ctx, s.vault, chainId)
+			txnOpts, err := TransactionOptionsWithKMSSigning(ctx, wallet, s.vault, chainId)
 			if err != nil {
 				s.e.Logger.Errorf(err.Error())
 				continue
@@ -214,7 +213,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 				To:       &to,
 			})
 			signer := types.LatestSignerForChainID(chainId)
-			signature, err := wallet.SignTransactionHash(ctx, s.vault, txn.Hash().Bytes())
+			signature, err := SignTransactionHash(ctx, wallet, s.vault, txn.Hash().Bytes())
 			txn, err = txn.WithSignature(signer, signature)
 			if err != nil {
 				s.e.Logger.Errorf(err.Error())
@@ -226,7 +225,8 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 			}
 			txnHash = txn.Hash().String()
 		}
-		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash, Type: "txn"})
+		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash,
+			Type: "txn", ReferenceId: record.ReferenceId})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 		}

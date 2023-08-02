@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"strings"
 	"wallet-kms/vault"
@@ -83,22 +84,28 @@ func NewSmartContract(address common.Address, ABI string, backend bind.ContractB
 	return &SmartContract{SmartContractCaller: SmartContractCaller{Contract: contract}, SmartContractTransactor: SmartContractTransactor{Contract: contract}, SmartContractFilterer: SmartContractFilterer{Contract: contract}}, nil
 }
 
-func (w *Wallet) TransactionOptionsWithKMSSigning(ctx context.Context, vault vault.Vault, chainID *big.Int) (*bind.TransactOpts, error) {
+func TransactionOptionsWithKMSSigning(ctx context.Context, w *Wallet, vault vault.Vault, chainID *big.Int) (*bind.TransactOpts, error) {
 	signer := types.LatestSignerForChainID(chainID)
 	signerFn := func(address common.Address, tx *types.Transaction) (*types.Transaction, error) {
 		txHashBytes := signer.Hash(tx).Bytes()
-		signature, err := w.SignTransactionHash(ctx, vault, txHashBytes)
+		signature, err := SignTransactionHash(ctx, w, vault, txHashBytes)
 		if err != nil {
 			return nil, err
+		}
+		pubKey, _ := crypto.SigToPub(txHashBytes, signature)
+		keyAddr := crypto.PubkeyToAddress(*pubKey)
+		if address != keyAddr {
+			return nil, bind.ErrNotAuthorized
 		}
 		return tx.WithSignature(signer, signature)
 	}
 	return &bind.TransactOpts{
+		From:   common.HexToAddress(w.Address),
 		Signer: signerFn,
 	}, nil
 }
 
-func (w *Wallet) SignTransactionHash(ctx context.Context, vault vault.Vault, transactionHash []byte) ([]byte, error) {
+func SignTransactionHash(ctx context.Context, w *Wallet, vault vault.Vault, transactionHash []byte) ([]byte, error) {
 	var signature []byte
 	data, err := vault.GetSecret(ctx, w.Name)
 	if err != nil {
