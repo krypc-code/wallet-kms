@@ -167,7 +167,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		if err != nil {
 			return utils.UnexpectedFailureResponse(c, "error initializing contract : "+err.Error(), nil)
 		}
-		txnOpts, err := wallet.TransactionOptionsWithKMSSigning(ctx, s.vault, chainId)
+		txnOpts, err := TransactionOptionsWithKMSSigning(ctx, wallet, s.vault, chainId)
 		if err != nil {
 			return utils.UnexpectedFailureResponse(c, "error initializing transactor opts : "+err.Error(), nil)
 		}
@@ -214,7 +214,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 			To:       &to,
 		})
 		signer := types.LatestSignerForChainID(chainId)
-		signature, err := wallet.SignTransactionHash(ctx, s.vault, txn.Hash().Bytes())
+		signature, err := SignTransactionHash(ctx, wallet, s.vault, txn.Hash().Bytes())
 		txn, err = txn.WithSignature(signer, signature)
 		if err != nil {
 			return utils.UnexpectedFailureResponse(c, err.Error(), nil)
@@ -268,7 +268,7 @@ func (s *Service) deployContract(c echo.Context) error {
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	transactOpts, err := wallet.TransactionOptionsWithKMSSigning(ctx, s.vault, chainId)
+	transactOpts, err := TransactionOptionsWithKMSSigning(ctx, wallet, s.vault, chainId)
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 		return utils.UnexpectedFailureResponse(c, "Error while fetching txn opts "+err.Error(), nil)
