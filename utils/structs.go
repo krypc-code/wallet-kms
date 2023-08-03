@@ -53,6 +53,25 @@ type SignAndSubmitTxn struct {
 	Data          string `json:"data"`
 }
 
+type EstimateGasRequest struct {
+	WalletId      string  `json:"walletId"`
+	To            string  `json:"to,omitempty" example:"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10"`
+	Gas           uint64  `json:"gas,omitempty"`
+	Value         int64   `json:"value,omitempty"`
+	Method        string  `json:"method,omitempty" example:"store"`
+	Params        []Param `json:"params,omitempty" `
+	IsContractTxn bool    `json:"isContractTxn,omitempty" example:"true"`
+	ContractABI   string  `json:"contractABI,omitempty" example:""`
+	Data          string  `json:"data,omitempty" example:""`
+	ByteCode      string  `json:"byteCode,omitempty" example:""`
+	Service       string  `json:"service,omitempty" example:""`
+}
+
+type EstimatedGasResponse struct {
+	Address      string `json:"address"`
+	EstimatedGas uint64 `json:"estimatedGas"`
+}
+
 type Param struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`

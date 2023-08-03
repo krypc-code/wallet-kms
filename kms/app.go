@@ -1,17 +1,20 @@
 package kms
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"log"
 	"math/big"
 	"net/http"
 	"os"
+	"strings"
 	"wallet-kms/store"
 	"wallet-kms/utils"
 	"wallet-kms/vault"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/google/uuid"
@@ -73,6 +76,7 @@ func Run() {
 	g.POST("/createWallet", service.createWallet)
 	g.POST("/submitTransaction", service.submitTransaction)
 	g.POST("/deployContract", service.deployContract)
+	g.POST("/estimateGas", service.estimateGas)
 
 	service.e.Logger.Fatal(service.e.Start(":8889"))
 }
@@ -299,4 +303,72 @@ func (s *Service) deployContract(c echo.Context) error {
 	}
 	txnHash = txn.Hash().String()
 	return utils.SendSuccessResponse(c, "Signed and executed txn successfully", &utils.DeployContractResponse{TxnHash: txnHash, ContractAddress: address.String()})
+}
+
+func (s *Service) estimateGas(c echo.Context) error {
+
+	ctx := context.Background()
+	u := new(utils.EstimateGasRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	client, err := utils.GetEthereumClient(ctx, s.config)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	gasPrice, err := client.SuggestGasPrice(ctx)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error calculating gas price : "+err.Error(), nil)
+	}
+	var to common.Address
+	if u.To != "" {
+		to = common.HexToAddress(u.To)
+	}
+	var data []byte
+	if u.IsContractTxn {
+		params, err := utils.ConvertParamsAsPerTypes(u.Params)
+		if err != nil {
+			s.e.Logger.Errorf(err.Error())
+			return utils.BadRequestResponse(c, "error converting params : "+err.Error(), nil)
+		}
+		abi, err := abi.JSON(strings.NewReader(u.ContractABI))
+		if err != nil {
+			s.e.Logger.Errorf(err.Error())
+			return utils.UnexpectedFailureResponse(c, "error reading ABI : "+err.Error(), nil)
+		}
+		data, err = abi.Pack(u.Method, params...)
+		if err != nil {
+			s.e.Logger.Errorf(err.Error())
+			return utils.UnexpectedFailureResponse(c, "error packing ABI : "+err.Error(), nil)
+		}
+		if u.ByteCode != "" {
+			data = append(common.FromHex(u.ByteCode), data...)
+		}
+	} else {
+		if u.Data != "" {
+			data, err = base64.RawStdEncoding.DecodeString(u.Data)
+			if err != nil {
+				s.e.Logger.Errorf(err.Error())
+				return utils.UnexpectedFailureResponse(c, "error decoding data : "+err.Error(), nil)
+			}
+		}
+	}
+	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: data, GasPrice: gasPrice})
+	if err != nil {
+		s.e.Logger.Errorf(err.Error())
+		return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
+	}
+	return utils.SendSuccessResponse(c, "", &utils.EstimatedGasResponse{Address: wallet.Address, EstimatedGas: estimatedGas})
 }

@@ -30,7 +30,7 @@ curl -d '{"name":"wallet2", "algorithm": "secp256k1"}' -H "Content-Type: applica
 
 #### Command
 ```bash 
-curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", "to":"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10","chainId":80001,"method":"store","params":[{"type":"uint","value":35}],"isContractTxn":true,"contractABI":"[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"}' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/submitTransaction
+curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", "to":"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10","chainId":80001,"method":"store","params":[{"type":"uint256","value":35}],"isContractTxn":true,"contractABI":"[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"}' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/submitTransaction
 ```
 
 ```bash
@@ -41,7 +41,7 @@ curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", "to":"0xc2de797fab7
 
 #### Command
 ```bash 
-curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", }' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/submitTransaction
+curl -d '{"walletId":"effae2b6-3ee3-48cb-9528-87c29152c89e", "byteCode": "", "abi":"", "params": []}' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/deployContract
 ```
 
 ```bash
