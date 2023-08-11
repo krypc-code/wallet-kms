@@ -3,6 +3,7 @@ package kms
 import (
 	"context"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"math/big"
@@ -15,8 +16,11 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -77,6 +81,11 @@ func Run() {
 	g.POST("/submitTransaction", service.submitTransaction)
 	g.POST("/deployContract", service.deployContract)
 	g.POST("/estimateGas", service.estimateGas)
+	g.POST("/getBalance", service.getBalance)
+	g.POST("/callContract", service.callContract)
+	g.POST("/signEIP712Tx", service.signEIP712Txn)
+	g.POST("/signMessage", service.signMessage)
+	g.POST("/verifySignatureOffChain", service.verifySignatureOffChain)
 
 	service.e.Logger.Fatal(service.e.Start(":8889"))
 }
@@ -371,4 +380,190 @@ func (s *Service) estimateGas(c echo.Context) error {
 		return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
 	}
 	return utils.SendSuccessResponse(c, "", &utils.EstimatedGasResponse{Address: wallet.Address, EstimatedGas: estimatedGas})
+}
+
+func (s *Service) getBalance(c echo.Context) error {
+
+	ctx := context.Background()
+	u := new(utils.WalletBalanceRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	client, err := utils.GetEthereumClient(ctx, s.config)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	address := common.HexToAddress(wallet.Address)
+	balance, err := client.BalanceAt(ctx, address, nil)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error fetching balance : "+err.Error(), nil)
+	}
+	return utils.SendSuccessResponse(c, "", &utils.WalletBalanceResponse{Address: wallet.Address, Balance: balance.Uint64()})
+}
+
+func (s *Service) callContract(c echo.Context) error {
+
+	ctx := context.Background()
+	u := new(utils.CallContractRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	if u.To == "" {
+		return utils.BadRequestResponse(c, "mandatory params missing", nil)
+	}
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	client, err := utils.GetEthereumClient(ctx, s.config)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	chainId, err := client.ChainID(ctx)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error getting chain Id : "+err.Error(), nil)
+	}
+	to := common.HexToAddress(u.To)
+	contract, err := NewSmartContract(to, u.ContractABI, client)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error initializing contract : "+err.Error(), nil)
+	}
+	txnOpts, err := TransactionOptionsWithKMSSigning(ctx, wallet, s.vault, chainId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error initializing transactor opts : "+err.Error(), nil)
+	}
+	if u.Value > 0 {
+		txnOpts.Value = big.NewInt(u.Value)
+	}
+	callOpts := &bind.CallOpts{
+		From: txnOpts.From,
+	}
+	params, err := utils.ConvertParamsAsPerTypes(u.Params)
+	if err != nil {
+		return utils.BadRequestResponse(c, err.Error(), nil)
+	}
+	var response []interface{}
+	if err := contract.SmartContractCaller.Contract.Call(callOpts, &response, u.Method, params...); err != nil {
+		return utils.UnexpectedFailureResponse(c, "error calling contract : "+err.Error(), nil)
+	}
+	return utils.SendSuccessResponse(c, "", &utils.CallContractResponse{Response: &response})
+}
+
+func (s *Service) signEIP712Txn(c echo.Context) error {
+	u := new(utils.EIP712SignRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	var data apitypes.TypedData
+	err := json.Unmarshal([]byte(u.Data), &data)
+	if err != nil {
+		return utils.BadRequestResponse(c, "error unmarshalling type data : "+err.Error(), nil)
+	}
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	signature, err := s.vault.GetEIP712Signature(data, wallet.Name)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error getting signature : "+err.Error(), nil)
+	}
+	return utils.SendSuccessResponse(c, "Data signed successfully", signature)
+}
+
+func (s *Service) signMessage(c echo.Context) error {
+	u := new(utils.SignMsgRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	if u.Message == "" {
+		return utils.BadRequestResponse(c, "mandatory params missing", nil)
+	}
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	hash := crypto.Keccak256Hash([]byte(u.Message))
+	signature, err := s.vault.SignTransactionHash(wallet.Name, hash.Bytes())
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error signing txn : "+err.Error(), nil)
+	}
+	return utils.SendSuccessResponse(c, "Signed message successfully", "0x"+hex.EncodeToString(signature))
+}
+
+func (s *Service) verifySignatureOffChain(c echo.Context) error {
+	u := new(utils.VerifyMsgRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+	if u.Message == "" || u.Signature == "" {
+		return utils.BadRequestResponse(c, "mandatory params missing", nil)
+	}
+	var isVerified bool
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	hash := crypto.Keccak256Hash([]byte(u.Message))
+	signature, err := hex.DecodeString(strings.Replace(u.Signature, "0x", "", 1))
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error decoding signature : "+err.Error(), nil)
+	}
+	pubKey, err := crypto.SigToPub(hash.Bytes(), signature)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error getting public key from signature : "+err.Error(), nil)
+	}
+	if pubKey.X == nil || pubKey.Y == nil {
+		return utils.UnexpectedFailureResponse(c, "error getting public key", nil)
+	}
+	address := crypto.PubkeyToAddress(*pubKey).Hex()
+	if wallet.Address != address {
+		isVerified = false
+	} else {
+		isVerified = true
+	}
+	return utils.SendSuccessResponse(c, "", &utils.VerifyMsgResponse{IsVerified: isVerified})
 }

@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	vault "github.com/hashicorp/vault/api"
 )
 
@@ -19,6 +21,7 @@ type Vault interface {
 	AddSecret(ctx context.Context, secretKey string, data map[string]interface{}) error
 	GetSecret(ctx context.Context, secretKey string) (map[string]interface{}, error)
 	DeleteSecret(ctx context.Context, secretPath string) error
+	GetEIP712Signature(data apitypes.TypedData, keyName string) (string, error)
 }
 
 type HashiCorp struct {
@@ -78,4 +81,38 @@ func (vault *HashiCorp) SignTransactionHash(keyName string, transactionHash []by
 	signatureHex := response.Data["signature"].(string)
 	sig := strings.Split(signatureHex, ":")
 	return []byte(sig[2]), nil
+}
+
+func (vault *HashiCorp) GetEIP712Signature(data apitypes.TypedData, keyName string) (string, error) {
+	typedDataHash, err := data.HashStruct(data.PrimaryType, data.Message)
+	if err != nil {
+		return "", err
+	}
+	domainSeparator, err := data.HashStruct("EIP712Domain", data.Domain.Map())
+	if err != nil {
+		return "", err
+	}
+
+	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+	challengeHash := crypto.Keccak256Hash(rawData)
+	signature, err := vault.SignTransactionHash(keyName, challengeHash.Bytes())
+	if err != nil {
+		return "", err
+	}
+	if len(signature) != 65 {
+		return "", fmt.Errorf("invalid signature length: %d", len(signature))
+	}
+
+	if signature[64] == 0 {
+		signature[64] = 27
+	}
+	if signature[64] == 1 {
+		signature[64] = 28
+	}
+	if signature[64] != 27 && signature[64] != 28 {
+		return "", fmt.Errorf("invalid recovery id: %d", signature[64])
+	}
+	signatureHex := "0x" + hex.EncodeToString(signature)
+
+	return signatureHex, nil
 }

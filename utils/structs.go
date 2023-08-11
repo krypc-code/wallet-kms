@@ -21,6 +21,10 @@ type WalletResponse struct {
 	WalletId string
 }
 
+type WalletBalanceRequest struct {
+	WalletId string
+}
+
 type TransactionResponse struct {
 	ApiKey      string
 	WalletId    string
@@ -55,16 +59,15 @@ type SignAndSubmitTxn struct {
 
 type EstimateGasRequest struct {
 	WalletId      string  `json:"walletId"`
-	To            string  `json:"to,omitempty" example:"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10"`
+	To            string  `json:"to,omitempty"`
 	Gas           uint64  `json:"gas,omitempty"`
 	Value         int64   `json:"value,omitempty"`
-	Method        string  `json:"method,omitempty" example:"store"`
+	Method        string  `json:"method,omitempty"`
 	Params        []Param `json:"params,omitempty" `
-	IsContractTxn bool    `json:"isContractTxn,omitempty" example:"true"`
-	ContractABI   string  `json:"contractABI,omitempty" example:""`
-	Data          string  `json:"data,omitempty" example:""`
-	ByteCode      string  `json:"byteCode,omitempty" example:""`
-	Service       string  `json:"service,omitempty" example:""`
+	IsContractTxn bool    `json:"isContractTxn,omitempty"`
+	ContractABI   string  `json:"contractABI,omitempty"`
+	Data          string  `json:"data,omitempty"`
+	ByteCode      string  `json:"byteCode,omitempty"`
 }
 
 type EstimatedGasResponse struct {
@@ -113,16 +116,55 @@ type Deploy struct {
 }
 
 type Transaction struct {
-	ReferenceId    string  `json:"referenceId" bson:"reference_id"`
-	SubscriptionId string  `json:"subscriptionId" bson:"subscription_id"`
-	WalletId       string  `json:"walletId" bson:"wallet_id"`
-	InstanceId     string  `json:"instanceId" bson:"instance_id"`
-	To             string  `json:"to" bson:"to"`
-	Gas            uint64  `json:"gas" bson:"gas"`
-	Value          int64   `json:"value" bson:"value"`
-	Method         string  `json:"method" bson:"method"`
-	Params         []Param `json:"params" bson:"params"`
-	IsContractTxn  bool    `json:"isContractTxn" bson:"is_contract_txn"`
-	ContractABI    string  `json:"contractABI" bson:"contract_abi"`
-	Data           string  `json:"data" bson:"data"`
+	ReferenceId    string  `json:"referenceId"`
+	SubscriptionId string  `json:"subscriptionId"`
+	WalletId       string  `json:"walletId"`
+	InstanceId     string  `json:"instanceId"`
+	To             string  `json:"to"`
+	Gas            uint64  `json:"gas"`
+	Value          int64   `json:"value"`
+	Method         string  `json:"method"`
+	Params         []Param `json:"params"`
+	IsContractTxn  bool    `json:"isContractTxn"`
+	ContractABI    string  `json:"contractABI"`
+	Data           string  `json:"data"`
+}
+
+type WalletBalanceResponse struct {
+	Address string `json:"address"`
+	Balance uint64 `json:"balance"`
+}
+
+type CallContractRequest struct {
+	WalletId    string  `json:"walletId"`
+	To          string  `json:"to,omitempty" example:"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10"`
+	Gas         uint64  `json:"gas,omitempty"`
+	Value       int64   `json:"value,omitempty"`
+	Method      string  `json:"method,omitempty" example:"store"`
+	Params      []Param `json:"params,omitempty" `
+	ContractABI string  `json:"contractABI,omitempty" example:"hello"`
+}
+
+type CallContractResponse struct {
+	Response *[]interface{} `json:"response"`
+}
+
+type EIP712SignRequest struct {
+	WalletId string `json:"walletId"`
+	Data     string `json:"data"`
+}
+
+type SignMsgRequest struct {
+	WalletId string `json:"walletId"`
+	Message  string `json:"message"`
+}
+
+type VerifyMsgRequest struct {
+	WalletId  string `json:"walletId"`
+	Message   string `json:"message"`
+	Signature string `json:"signature"`
+}
+
+type VerifyMsgResponse struct {
+	IsVerified bool `json:"isVerified" example:"true"`
 }
