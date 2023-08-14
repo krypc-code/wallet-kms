@@ -1,9 +1,7 @@
 version: '3.6'
 services:
   vault:
-    build:
-      context: ./vault
-      dockerfile: Dockerfile
+    image: krypctechnologies/vault:v1.0.0
     ports:
       - 8200:8200
     volumes:
