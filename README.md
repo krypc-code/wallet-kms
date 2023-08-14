@@ -163,7 +163,7 @@ To get balance of a wallet, use the following curl command:
 
 ```bash
 curl -d '{
-  "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e"
+  "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","chainId": "80001"
 }' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/getBalance
 ```
 

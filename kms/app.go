@@ -383,8 +383,6 @@ func (s *Service) estimateGas(c echo.Context) error {
 }
 
 func (s *Service) getBalance(c echo.Context) error {
-
-	ctx := context.Background()
 	u := new(utils.WalletBalanceRequest)
 	if err := c.Bind(u); err != nil {
 		return utils.BadRequestResponse(c, "bad request", nil)
@@ -401,16 +399,11 @@ func (s *Service) getBalance(c echo.Context) error {
 	if err := json.Unmarshal(walletBytes, wallet); err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	res, err := utils.GetBalanceByChainId(s.config, wallet.Address, u.ChainId)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	address := common.HexToAddress(wallet.Address)
-	balance, err := client.BalanceAt(ctx, address, nil)
-	if err != nil {
-		return utils.UnexpectedFailureResponse(c, "error fetching balance : "+err.Error(), nil)
-	}
-	return utils.SendSuccessResponse(c, "", &utils.WalletBalanceResponse{Address: wallet.Address, Balance: balance.Uint64()})
+	return utils.SendSuccessResponse(c, "", res)
 }
 
 func (s *Service) callContract(c echo.Context) error {

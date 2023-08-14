@@ -22,7 +22,8 @@ type WalletResponse struct {
 }
 
 type WalletBalanceRequest struct {
-	WalletId string
+	WalletId string `json:"walletId"`
+	ChainId  string `json:"chainId"`
 }
 
 type TransactionResponse struct {
@@ -130,11 +131,6 @@ type Transaction struct {
 	Data           string  `json:"data"`
 }
 
-type WalletBalanceResponse struct {
-	Address string `json:"address"`
-	Balance uint64 `json:"balance"`
-}
-
 type CallContractRequest struct {
 	WalletId    string  `json:"walletId"`
 	To          string  `json:"to,omitempty" example:"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10"`
@@ -167,4 +163,14 @@ type VerifyMsgRequest struct {
 
 type VerifyMsgResponse struct {
 	IsVerified bool `json:"isVerified" example:"true"`
+}
+
+type BalanceRequest struct {
+	Address string `json:"address"`
+	ChainId string `json:"chainId"`
+}
+
+type BalanceResponse struct {
+	Address string `json:"address"`
+	Balance uint64 `json:"balance"`
 }

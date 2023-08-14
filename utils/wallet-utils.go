@@ -106,3 +106,31 @@ func GetAllTransactionRecords(config *Config) ([]Transaction, error) {
 	}
 	return records, nil
 }
+
+func GetBalanceByChainId(config *Config, address, chainId string) (*BalanceResponse, error) {
+	request := BalanceRequest{
+		Address: address,
+		ChainId: chainId,
+	}
+	res := ResponseBody{}
+	header := make(map[string]string)
+	header["Content-Type"] = "application/json"
+	header["Authorization"] = config.AuthToken
+	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
+	if err := HttpCall("POST", config.ProxyUrl+GetBalance, request, &res, header); err != nil {
+		return nil, err
+	}
+	if res.Status == "FAILURE" {
+		return nil, fmt.Errorf(res.Message)
+	}
+	resBytes, err := json.Marshal(res.Data)
+	if err != nil {
+		return nil, err
+	}
+	var balanceRes BalanceResponse
+	if err := json.Unmarshal(resBytes, &balanceRes); err != nil {
+		return nil, err
+	}
+	return &balanceRes, nil
+}
