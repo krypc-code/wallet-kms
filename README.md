@@ -131,6 +131,62 @@ curl -d '{
 }' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/deployContract
 ```
 
-This will allow you to deploy a smart contract and receive a transaction hash in response.
+This will allow you to deploy a smart contract and receive a transaction hash and contract address in response.
+
+
+### Estimating Gas Price
+
+To estimate gas for a transaction, use the following curl command:
+
+```bash
+curl -d '{
+  "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e",
+  "to": "0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10",
+  "method": "store",
+  "params": [{"type": "uint256", "value": "35"}],
+  "isContractTxn": true,
+  "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/estimateGas
+```
+
+### Get Wallet Balance
+
+To get balance of a wallet, use the following curl command:
+
+```bash
+curl -d '{
+  "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e"
+}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/getBalance
+```
+
+### Call Contract Method
+
+To call contract method, use the following curl command:
+
+```bash
+curl -d '{
+  "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e",
+  "to": "0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10",
+  "method": "store",
+  "params": [{"type": "uint256", "value": "35"}],
+  "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/callContract
+```
+
+### Sign Message
+
+To sign a message, use the following curl command:
+
+```bash
+curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/signMessage
+```
+
+### Verify Signature Offchain
+
+To verify signature offchain, use the following curl command:
+
+```bash
+curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello","signature":"0x0274ba1a35dd8dfcf279a660f970985036c1432ceead1e05b81443b9d94bac403e4e2e8dbab494fe428e212ed0e9b2f8ebac327c5971dc461c9b147bc33fbc5301"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/verifySignatureOffChain
+```
 
 Remember to replace the placeholders with actual values as needed.
