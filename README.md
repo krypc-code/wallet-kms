@@ -27,7 +27,51 @@ Launch the HashiCorp Vault service using Docker Compose:
 sudo docker-compose -f docker-compose-vault.yaml up -d
 ```
 
-Once the Vault service is running, create secrets keys within the Vault and update the environment variables in the `docker-compose-kms.yaml` file as follows:
+**Vault Initialization Steps:**
+
+1. **Access the Vault UI:**
+    - Start the Vault server.
+    - Open a web browser and navigate to http://127.0.0.1:8200.
+
+2. **Set Keyshare and Key Threshold:**
+    - In the Vault UI, locate the settings for key sharing.
+    - Set the number of keyshares (e.g., 5) and the key threshold (e.g., 3).
+    - These values determine the number of key parts required to unseal the vault.
+
+3. **Generate Key Pairs:**
+    - Click on the "Initialize" button in the Vault UI.
+    - This action triggers the generation of a set of key and root token pairs.
+
+4. **Download and Save Keys:**
+    - After initialization, download the generated keys.
+    - Save the downloaded keys securely on your local machine.
+
+5. **Provide Unseal Keys:**
+    - Open the downloaded key file and find the keys_base64 values.
+    - Depending on the threshold set earlier, gather the required number of keys_base64 values.
+    - These keys will be used to unseal the vault.
+
+6. **Unseal the Vault:**
+    - In the Vault UI, locate the "Unseal" section.
+    - Paste the collected keys_base64 values into the designated fields, based on the threshold.
+    - Click "Continue" to unseal the vault.
+
+7. **Provide Root Token:**
+    - In the Vault UI, find the field to input the root token.
+    - Enter the root token obtained during the initialization process.
+
+8. **Sign In to Vault:**
+    - Click on the "Sign In" or "Log In" button in the Vault UI.
+    - If the root token is valid, you will gain access to the Vault.
+
+9. **Vault Initialization Complete:**
+    - At this point, your Vault is initialized and accessible.
+
+Ensure that you keep the downloaded keys and root token secure.
+
+
+
+Once the Vault service is running and initialized successfully,update the environment variables in the `docker-compose-kms.yaml` file as follows:
 
 ```yaml
 "VAULT_URL": "http://127.0.0.1:8200",
