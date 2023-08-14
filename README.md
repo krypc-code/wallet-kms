@@ -32,19 +32,24 @@ sudo docker-compose -f docker-compose-vault.yaml up -d
 1. **Access the Vault UI:**
     - Start the Vault server.
     - Open a web browser and navigate to http://127.0.0.1:8200.
+   
+      ![](docs/assets/initialize.png)
 
 2. **Set Keyshare and Key Threshold:**
     - In the Vault UI, locate the settings for key sharing.
     - Set the number of keyshares (e.g., 5) and the key threshold (e.g., 3).
     - These values determine the number of key parts required to unseal the vault.
+   
 
 3. **Generate Key Pairs:**
     - Click on the "Initialize" button in the Vault UI.
     - This action triggers the generation of a set of key and root token pairs.
+      ![](docs/assets/keys.png)
 
 4. **Download and Save Keys:**
     - After initialization, download the generated keys.
     - Save the downloaded keys securely on your local machine.
+      ![](docs/assets/downloadkey.png)
 
 5. **Provide Unseal Keys:**
     - Open the downloaded key file and find the keys_base64 values.
@@ -55,10 +60,12 @@ sudo docker-compose -f docker-compose-vault.yaml up -d
     - In the Vault UI, locate the "Unseal" section.
     - Paste the collected keys_base64 values into the designated fields, based on the threshold.
     - Click "Continue" to unseal the vault.
+      ![](docs/assets/unseal.png)
 
 7. **Provide Root Token:**
     - In the Vault UI, find the field to input the root token.
     - Enter the root token obtained during the initialization process.
+      ![](docs/assets/signin.png)
 
 8. **Sign In to Vault:**
     - Click on the "Sign In" or "Log In" button in the Vault UI.
@@ -66,6 +73,7 @@ sudo docker-compose -f docker-compose-vault.yaml up -d
 
 9. **Vault Initialization Complete:**
     - At this point, your Vault is initialized and accessible.
+      ![](docs/assets/Login.png)
 
 Ensure that you keep the downloaded keys and root token secure.
 
