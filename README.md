@@ -68,10 +68,10 @@ curl -d '{
   "to": "0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10",
   "chainId": 80001,
   "method": "store",
-  "params": [{"type": "uint256", "value": 35}],
+  "params": [{"type": "uint256", "value": "35"}],
   "isContractTxn": true,
   "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
-}' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/submitTransaction
+}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/submitTransaction
 ```
 
 ### Deploying a Smart Contract
@@ -84,7 +84,7 @@ curl -d '{
   "byteCode": "",
   "abi": "",
   "params": []
-}' -H "Content-Type: application/json" -H "instanceId: INS_WA_4_2023630" -H "Authorization: 49817601-81d6-4863-bc70-619211d35efd_dcd96173-bd93-46ff-8d3a-a98baeb4fa87" -X POST http://localhost:8889/wallet/deployContract
+}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/deployContract
 ```
 
 This will allow you to deploy a smart contract and receive a transaction hash in response.
