@@ -134,3 +134,44 @@ func GetBalanceByChainId(config *Config, address, chainId string) (*BalanceRespo
 	}
 	return &balanceRes, nil
 }
+
+func GetPendingWalletRecords(config *Config) ([]PendingWalletResponse, error) {
+	req := Request{}
+	res := ResponseBody{}
+	header := make(map[string]string)
+	header["Content-Type"] = "application/json"
+	header["Authorization"] = config.AuthToken
+	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
+	if err := HttpCall("POST", config.ProxyUrl+FetchPendingWallets, req, &res, header); err != nil {
+		return nil, err
+	}
+	if res.Status == "FAILURE" {
+		return nil, fmt.Errorf(res.Message)
+	}
+	resBytes, err := json.Marshal(res.Data)
+	if err != nil {
+		return nil, err
+	}
+	var records []PendingWalletResponse
+	if err := json.Unmarshal(resBytes, &records); err != nil {
+		return nil, err
+	}
+	return records, nil
+}
+
+func UpdatePendingWallet(config *Config, request *AddWalletRequest) error {
+	res := ResponseBody{}
+	header := make(map[string]string)
+	header["Content-Type"] = "application/json"
+	header["Authorization"] = config.AuthToken
+	header["InstanceId"] = config.InstanceId
+	header["SubscriptionId"] = config.SubscriptionId
+	if err := HttpCall("POST", config.ProxyUrl+UpdatePendingWallets, request, &res, header); err != nil {
+		return err
+	}
+	if res.Status == "FAILURE" {
+		return fmt.Errorf(res.Message)
+	}
+	return nil
+}

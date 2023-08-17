@@ -174,3 +174,10 @@ type BalanceResponse struct {
 	Address string `json:"address"`
 	Balance uint64 `json:"balance"`
 }
+
+type PendingWalletResponse struct {
+	UniqueId   string `json:"uniqueId"`
+	InstanceId string `json:"instanceId"`
+	WalletName string `json:"walletName"`
+	Algorithm  string `json:"algorithm"`
+}

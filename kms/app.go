@@ -24,13 +24,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/thinhdanggroup/executor"
 )
 
 type Service struct {
-	e      *echo.Echo
-	db     store.DB
-	vault  vault.Vault
-	config *utils.Config
+	e        *echo.Echo
+	db       store.DB
+	vault    vault.Vault
+	config   *utils.Config
+	executor *executor.Executor
 }
 
 func initService() *Service {
@@ -47,6 +49,11 @@ func initService() *Service {
 	if err != nil {
 		log.Panic("error initializing wallet db")
 	}
+	executor, err := executor.New(executor.DefaultConfig())
+	if err != nil {
+		log.Panic("error initializing executor")
+	}
+	serve.executor = executor
 	vault, err := vault.NewHashiCorpVault(os.Getenv("VAULT_URL"), os.Getenv("VAULT_TOKEN"))
 	if err != nil {
 		log.Panic("error initializing vault : ", err.Error())

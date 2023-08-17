@@ -25,6 +25,8 @@ const (
 	FetchDeployRecords       = "/ncWallet/fetchDeployRecords"
 	FetchTransactionsRecords = "/ncWallet/fetchTransactionRecords"
 	GetBalance               = "/utils/getBalance"
+	FetchPendingWallets      = "/ncWallet/fetchAllReferenceWallet"
+	UpdatePendingWallets     = "/ncWallet/updateNcWalletReference"
 )
 
 type Request struct {

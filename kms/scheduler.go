@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"os"
 	"strconv"
@@ -25,9 +24,10 @@ func (s *Service) ScheduleService() error {
 	}
 	for {
 		time.Sleep(time.Duration(duration) * time.Second)
-		fmt.Println("fetching records")
-		s.DeployContracts(ctx)
-		s.SubmitTransactions(ctx)
+		s.e.Logger.Infof("fetching records")
+		s.executor.Publish(s.DeployContracts, ctx)
+		s.executor.Publish(s.SubmitTransactions, ctx)
+		s.executor.Publish(s.ApprovePendingWallets, ctx)
 	}
 }
 
@@ -231,5 +231,38 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 		}
 
+	}
+}
+
+func (s *Service) ApprovePendingWallets(ctx context.Context) {
+	records, err := utils.GetPendingWalletRecords(s.config)
+	if err != nil {
+		s.e.Logger.Errorf(err.Error())
+	}
+	for _, record := range records {
+		walletId := uuid.New()
+		wallet := Wallet{
+			Name:      record.WalletName,
+			Algorithm: record.Algorithm,
+			WalletId:  walletId.String(),
+		}
+		if err := wallet.generateKey(ctx, s.vault); err != nil {
+			s.e.Logger.Errorf(err.Error())
+		}
+		data, err := json.Marshal(wallet)
+		if err != nil {
+			s.e.Logger.Errorf(err.Error())
+		}
+		if err := s.db.Set([]byte(utils.NAMESPACE), walletId.NodeID(), data); err != nil {
+			s.e.Logger.Errorf(err.Error())
+		}
+		if err := utils.UpdatePendingWallet(s.config, &utils.AddWalletRequest{
+			WalletId:  wallet.WalletId,
+			Address:   wallet.Address,
+			Name:      wallet.Name,
+			Algorithm: wallet.Algorithm,
+		}); err != nil {
+			s.e.Logger.Errorf(err.Error())
+		}
 	}
 }
