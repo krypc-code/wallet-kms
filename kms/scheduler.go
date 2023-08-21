@@ -248,13 +248,16 @@ func (s *Service) ApprovePendingWallets(ctx context.Context) {
 		}
 		if err := wallet.generateKey(ctx, s.vault); err != nil {
 			s.e.Logger.Errorf(err.Error())
+			continue
 		}
 		data, err := json.Marshal(wallet)
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
+			continue
 		}
 		if err := s.db.Set([]byte(utils.NAMESPACE), walletId.NodeID(), data); err != nil {
 			s.e.Logger.Errorf(err.Error())
+			continue
 		}
 		if err := utils.UpdatePendingWallet(s.config, &utils.AddWalletRequest{
 			WalletId:  wallet.WalletId,
