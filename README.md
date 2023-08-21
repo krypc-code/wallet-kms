@@ -70,10 +70,19 @@ sudo docker-compose -f docker-compose-vault.yaml up -d
 8. **Sign In to Vault:**
     - Click on the "Sign In" or "Log In" button in the Vault UI.
     - If the root token is valid, you will gain access to the Vault.
+     ![](docs/assets/Login.png)
 
-9. **Vault Initialization Complete:**
+9. **Create Key Value Path:**
+    - Create new secret engine by selecting KV on the options screen.
+      ![](docs/assets/kv.png)
+
+10. **Secret As Path:**
+   - Create new path with value "secret" in path param.
+      ![](docs/assets/secret.png)
+
+11. **Vault Initialization Complete:**
     - At this point, your Vault is initialized and accessible.
-      ![](docs/assets/Login.png)
+
 
 Ensure that you keep the downloaded keys and root token secure.
 
