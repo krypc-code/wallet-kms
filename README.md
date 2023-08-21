@@ -72,7 +72,7 @@ sudo docker-compose -f docker-compose-vault.yaml up -d
     - If the root token is valid, you will gain access to the Vault.
      ![](docs/assets/Login.png)
 
-9. **Create Key Value Path:**
+9. **Create New Engine:**
     - Create new secret engine by selecting KV on the options screen.
       ![](docs/assets/kv.png)
 
