@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -86,6 +87,7 @@ func Run() {
 	//wallet API
 	g.POST("/createWallet", service.createWallet)
 	g.POST("/submitTransaction", service.submitTransaction)
+	g.POST("/signAndSubmitGaslessTxn", service.signAndSubmitGaslessTransaction)
 	g.POST("/deployContract", service.deployContract)
 	g.POST("/estimateGas", service.estimateGas)
 	g.POST("/getBalance", service.getBalance)
@@ -566,4 +568,120 @@ func (s *Service) verifySignatureOffChain(c echo.Context) error {
 		isVerified = true
 	}
 	return utils.SendSuccessResponse(c, "", &utils.VerifyMsgResponse{IsVerified: isVerified})
+}
+
+func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
+
+	ctx := context.Background()
+	u := new(utils.SignAndSubmitGSNTxnRequest)
+	if err := c.Bind(u); err != nil {
+		return utils.BadRequestResponse(c, "bad request", nil)
+	}
+
+	walletId, err := uuid.Parse(u.WalletId)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	walletBytes, err := s.db.Get([]byte(utils.NAMESPACE), walletId.NodeID())
+	if err != nil {
+		return utils.UnauthorizedResponse(c, err.Error(), nil)
+	}
+	wallet := &Wallet{}
+	if err := json.Unmarshal(walletBytes, wallet); err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+
+	client, err := utils.GetEthereumClient(ctx, s.config)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	}
+	chainId, err := client.ChainID(ctx)
+	if err != nil {
+		s.e.Logger.Errorf(err.Error())
+	}
+
+	//Step 1. Get Transaction payload from gasless service
+
+	req := utils.GSNTxnPayloadRequest{ChainId: chainId.Uint64(), UserId: u.UserId, DAppId: u.DAppId, UserAddress: wallet.Address, ContractAddress: u.To, ContractAbi: u.ContractABI,
+		Method: u.Method, Args: u.Params}
+
+	var txnPayload map[string]interface{}
+	if err := utils.HttpCallWithContextHeaderJson(c, "POST", s.config.ProxyUrl+utils.GetGaslessPayloadEndpoint, req, &txnPayload); err != nil {
+		return utils.UnexpectedFailureResponse(c, "error getting txn payload : "+err.Error(), nil)
+	} else if txnPayload["dataToSign"] == nil || txnPayload["request"] == nil {
+		return utils.UnexpectedFailureResponse(c, "Failed to get transaction payload", txnPayload)
+	}
+
+	//Step 2. Sign EIP712 Signature
+
+	jsonString, err := json.Marshal(txnPayload["dataToSign"])
+	if err != nil {
+		return utils.BadRequestResponse(c, "error unmarshalling data to sign : "+err.Error(), nil)
+	}
+	var data apitypes.TypedData
+	err = json.Unmarshal(jsonString, &data)
+	if err != nil {
+		return utils.BadRequestResponse(c, "error unmarshalling type data : "+err.Error(), nil)
+	}
+
+	signature, err := getEIP712Signature(ctx, wallet, s.vault, data)
+	if err != nil {
+		return utils.UnexpectedFailureResponse(c, "error getting signature : "+err.Error(), nil)
+	}
+
+	//Step 3. Send transaction
+
+	sendTxRequest := &utils.GSNSendTxnRequest{
+		ChainId:         80001,
+		UserId:          u.UserId,
+		UserAddress:     wallet.Address,
+		ContractAddress: u.To,
+		Method:          u.Method,
+		Request:         txnPayload["request"],
+		Signature:       signature,
+		//DomainSeparator: res.DomainSeparator,
+		// SignatureType: config.GaslessSendTxnType,
+	}
+	var sendTxResponse map[string]interface{}
+	if err := utils.HttpCallWithContextHeaderJson(c, "POST", s.config.ProxyUrl+utils.SendGaslessTransactionEndpoint, sendTxRequest, &sendTxResponse); err != nil {
+		return utils.UnexpectedFailureResponse(c, "error sending gasless txn : "+err.Error(), nil)
+	} else if sendTxResponse["txHash"] == nil {
+		return utils.UnexpectedFailureResponse(c, "Failed To Send  Transaction: ", sendTxResponse)
+	}
+
+	return utils.SendSuccessResponse(c, "Transaction Complete", sendTxResponse)
+}
+
+func getEIP712Signature(ctx context.Context, w *Wallet, vault vault.Vault, data apitypes.TypedData) (string, error) {
+	typedDataHash, err := data.HashStruct(data.PrimaryType, data.Message)
+	if err != nil {
+		return "", err
+	}
+	domainSeparator, err := data.HashStruct("EIP712Domain", data.Domain.Map())
+	if err != nil {
+		return "", err
+	}
+
+	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+	challengeHash := crypto.Keccak256Hash(rawData)
+	signature, err := SignTransactionHash(ctx, w, vault, challengeHash.Bytes())
+	if err != nil {
+		return "", err
+	}
+	if len(signature) != 65 {
+		return "", fmt.Errorf("invalid signature length: %d", len(signature))
+	}
+
+	if signature[64] == 0 {
+		signature[64] = 27
+	}
+	if signature[64] == 1 {
+		signature[64] = 28
+	}
+	if signature[64] != 27 && signature[64] != 28 {
+		return "", fmt.Errorf("invalid recovery id: %d", signature[64])
+	}
+	signatureHex := "0x" + hex.EncodeToString(signature)
+
+	return signatureHex, nil
 }

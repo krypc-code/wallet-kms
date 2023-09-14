@@ -27,6 +27,9 @@ const (
 	GetBalance               = "/utils/getBalance"
 	FetchPendingWallets      = "/ncWallet/fetchAllReferenceWallet"
 	UpdatePendingWallets     = "/ncWallet/updateNcWalletReference"
+
+	GetGaslessPayloadEndpoint      = "/gasless/getTransactionPayload"
+	SendGaslessTransactionEndpoint = "/gasless/sendTransaction"
 )
 
 type Request struct {

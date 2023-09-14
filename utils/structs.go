@@ -181,3 +181,39 @@ type PendingWalletResponse struct {
 	WalletName string `json:"walletName"`
 	Algorithm  string `json:"algorithm"`
 }
+
+type SignAndSubmitGSNTxnRequest struct {
+	WalletId    string        `json:"walletId,omitempty"`
+	ChainID     uint64        `json:"chainId,omitempty" example:"80001"`
+	DAppId      string        `json:"DAppId,omitempty"`
+	UserId      string        `json:"userId"`
+	To          string        `json:"to,omitempty" example:"store"`
+	Gas         uint64        `json:"gas,omitempty" `
+	Value       int64         `json:"value,omitempty" `
+	Method      string        `json:"method,omitempty" example:"store"`
+	Params      []interface{} `json:"params,omitempty"`
+	ContractABI string        `json:"contractABI,omitempty" example:""`
+}
+
+type GSNTxnPayloadRequest struct {
+	ChainId         uint64        `json:"chainId,omitempty"`
+	UserId          string        `json:"userId,omitempty"`
+	DAppId          string        `json:"dAppId,omitempty"`
+	UserAddress     string        `json:"userAddress,omitempty"`
+	ContractAddress string        `json:"contractAddress,omitempty"`
+	ContractAbi     string        `json:"contractAbi,omitempty"`
+	Method          string        `json:"method,omitempty"`
+	Args            []interface{} `json:"args,omitempty"`
+}
+
+type GSNSendTxnRequest struct {
+	ChainId         uint64      `json:"chainId,omitempty"`
+	UserId          string      `json:"userId,omitempty"`
+	UserAddress     string      `json:"userAddress,omitempty"`
+	ContractAddress string      `json:"contractAddress,omitempty"`
+	Method          string      `json:"method,omitempty"`
+	Request         interface{} `json:"request,omitempty"`
+	Signature       string      `json:"signature,omitempty"`
+	DomainSeparator string      `json:"domainSeparator,omitempty"`
+	SignatureType   string      `json:"signatureType,omitempty"`
+}
