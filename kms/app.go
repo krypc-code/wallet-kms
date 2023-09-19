@@ -632,7 +632,7 @@ func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
 	//Step 3. Send transaction
 
 	sendTxRequest := &utils.GSNSendTxnRequest{
-		ChainId:         80001,
+		ChainId:         chainId.Uint64(),
 		UserId:          u.UserId,
 		UserAddress:     wallet.Address,
 		ContractAddress: u.To,
