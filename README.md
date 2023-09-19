@@ -206,6 +206,10 @@ To verify signature offchain, use the following curl command:
 curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello","signature":"0x0274ba1a35dd8dfcf279a660f970985036c1432ceead1e05b81443b9d94bac403e4e2e8dbab494fe428e212ed0e9b2f8ebac327c5971dc461c9b147bc33fbc5301"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/verifySignatureOffChain
 ```
 
+### Sign and Submit Gasless Transaction
+
+To Sign and Submit Gasless Transaction, use the following curl command:
+
 ```bash
 curl --location 'http://localhost:8889/wallet/signAndSubmitGaslessTxn' \
 --header 'Authorization: fa4b9b58-57e9-4772-af79-6353f61dd78b' \
