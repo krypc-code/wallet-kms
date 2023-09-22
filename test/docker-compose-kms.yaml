@@ -2,7 +2,7 @@ version: '3.6'
 services:
 
   walletkms:
-    image: krypctechnologies/self-managed-wallet:v1.0.1
+    image: krypctechnologies/self-managed-wallet:v1.0.2
     ports:
       - 0.0.0.0:8888:8888
     environment:
