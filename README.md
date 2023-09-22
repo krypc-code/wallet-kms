@@ -1,6 +1,13 @@
 # Self Managed Wallets
 
 The Self-Managed Wallet (SMW) system is designed as a custodial wallet solution that operates within the client's environment. It empowers users to generate and retain cryptographic keys within their infrastructure, ensuring a higher level of control and security. The architecture incorporates a robust key storage mechanism to safeguard keys, with the added convenience of integrating with KrypCore Web3 services, enabling seamless utilization of KrypCore functionalities using self-generated keys. 
+
+
+## Prerequisite
+
+Docker
+Docker Compose
+
 ## Running Self Managed Wallets
 
 Follow these steps to set up and run a self-managed wallet using the provided repository.
