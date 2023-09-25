@@ -99,12 +99,12 @@ Once the Vault service is running and initialized successfully,update the enviro
 
 ```yaml
 "VAULT_URL": "http://127.0.0.1:8200",
-"VAULT_TOKEN": "hvs.6xYh1CwO2ekf1ZpjryumvqmQ",
-"AUTH_TOKEN": "abd3789a-8a15-4e5a-8644-ed65a2c2e7f6",
+"VAULT_TOKEN": "hvs.xxxxxxxxxxxxxxxxx",
+"AUTH_TOKEN": "abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6",
 "PROXY_URL": "http://localhost:8888",
-"ENDPOINT": "https://polygon-mumbai-dev-node.krypcore.com/api/v0/rpc?apiKey=1ddc4575-fe65-4f00-a420-9d8a7a4086aa&token=abd3789a-8a15-4e5a-8644-ed65a2c2e7f6",
-"WALLET_INSTANCE_ID": "INS_NC_17_2023721",
-"SUBSCRIPTION_ID": "6186952413",
+"ENDPOINT": "https://polygon-mumbai-dev-node.krypcore.com/api/v0/rpc?apiKey=1ddc4575-xxxx-xxxx-xxxx-9d8a7a4086aa&token=abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6",
+"WALLET_INSTANCE_ID": "XXX_XX_XX_2023721",
+"SUBSCRIPTION_ID": "XXXXXXXXXX",
 "SCHEDULER_DURATION": "10"
 ```
 
