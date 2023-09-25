@@ -165,6 +165,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	if u.To != "" {
 		to = common.HexToAddress(u.To)
 	}
+
 	client, err := utils.GetEthereumClient(ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
@@ -602,7 +603,7 @@ func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
 
 	//Step 1. Get Transaction payload from gasless service
 
-	req := utils.GSNTxnPayloadRequest{ChainId: chainId.Uint64(), UserId: u.UserId, DAppId: u.DAppId, UserAddress: wallet.Address, ContractAddress: u.To, ContractAbi: u.ContractABI,
+	req := utils.GSNTxnPayloadRequest{ChainId: chainId.Uint64(), DAppId: u.DAppId, UserAddress: wallet.Address, ContractAddress: u.To, ContractAbi: u.ContractABI,
 		Method: u.Method, Args: u.Params}
 
 	var txnPayload map[string]interface{}
@@ -633,8 +634,8 @@ func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
 
 	sendTxRequest := &utils.GSNSendTxnRequest{
 		ChainId:         chainId.Uint64(),
-		UserId:          u.UserId,
 		UserAddress:     wallet.Address,
+		DAppId:          u.DAppId,
 		ContractAddress: u.To,
 		Method:          u.Method,
 		Request:         txnPayload["request"],

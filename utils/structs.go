@@ -185,8 +185,7 @@ type PendingWalletResponse struct {
 type SignAndSubmitGSNTxnRequest struct {
 	WalletId    string        `json:"walletId,omitempty"`
 	ChainID     uint64        `json:"chainId,omitempty" example:"80001"`
-	DAppId      string        `json:"DAppId,omitempty"`
-	UserId      string        `json:"userId"`
+	DAppId      string        `json:"dAppId,omitempty"`
 	To          string        `json:"to,omitempty" example:"store"`
 	Gas         uint64        `json:"gas,omitempty" `
 	Value       int64         `json:"value,omitempty" `
@@ -197,7 +196,6 @@ type SignAndSubmitGSNTxnRequest struct {
 
 type GSNTxnPayloadRequest struct {
 	ChainId         uint64        `json:"chainId,omitempty"`
-	UserId          string        `json:"userId,omitempty"`
 	DAppId          string        `json:"dAppId,omitempty"`
 	UserAddress     string        `json:"userAddress,omitempty"`
 	ContractAddress string        `json:"contractAddress,omitempty"`
@@ -208,7 +206,7 @@ type GSNTxnPayloadRequest struct {
 
 type GSNSendTxnRequest struct {
 	ChainId         uint64      `json:"chainId,omitempty"`
-	UserId          string      `json:"userId,omitempty"`
+	DAppId          string      `json:"dAppId,omitempty"`
 	UserAddress     string      `json:"userAddress,omitempty"`
 	ContractAddress string      `json:"contractAddress,omitempty"`
 	Method          string      `json:"method,omitempty"`
