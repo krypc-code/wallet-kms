@@ -165,6 +165,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	if u.To != "" {
 		to = common.HexToAddress(u.To)
 	}
+
 	client, err := utils.GetEthereumClient(ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
