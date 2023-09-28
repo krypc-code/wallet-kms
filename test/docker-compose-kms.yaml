@@ -14,5 +14,7 @@ services:
       - WALLET_INSTANCE_ID=XXX_XX_XX_2023721
       - SUBSCRIPTION_ID=XXXXXXXXXX
       - SCHEDULER_DURATION=10
+    volumes:
+      - ./wallet:/home/.wallet/db/  
     working_dir: /home
     command: ./app
