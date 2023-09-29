@@ -13,6 +13,6 @@ services:
       - ENDPOINT=https://polygon-mumbai-dev-node.krypcore.com/api/v0/rpc?apiKey=1ddc4575-xxxx-xxxx-xxxx-9d8a7a4086aa&token=abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6
       - WALLET_INSTANCE_ID=XXX_XX_XX_2023721
       - SUBSCRIPTION_ID=XXXXXXXXXX
-      - SCHEDULER_DURATION=10
+      - SCHEDULER_DURATION=60
     working_dir: /home
     command: ./app
