@@ -3,3 +3,6 @@
 
 # Ignore wallet db folder
 .wallet
+
+# Ignore vault
+test/vault
