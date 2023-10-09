@@ -5,4 +5,6 @@
 .wallet
 
 # Ignore vault
-test/vault
+test/vault/data
+test/vault/logs
+test/vault/policies
