@@ -140,6 +140,7 @@ func (serve *Service) createWallet(c echo.Context) error {
 	}
 	return utils.SendSuccessResponse(c, "wallet created successfully", utils.WalletResponse{
 		WalletId: wallet.WalletId,
+		Address:  wallet.Address,
 	})
 }
 
