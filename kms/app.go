@@ -503,6 +503,7 @@ func (s *Service) signEIP712Txn(c echo.Context) error {
 }
 
 func (s *Service) signMessage(c echo.Context) error {
+	ctx := c.Request().Context()
 	u := new(utils.SignMsgRequest)
 	if err := c.Bind(u); err != nil {
 		return utils.BadRequestResponse(c, "bad request", nil)
@@ -523,7 +524,7 @@ func (s *Service) signMessage(c echo.Context) error {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
 	hash := crypto.Keccak256Hash([]byte(u.Message))
-	signature, err := s.vault.SignTransactionHash(wallet.Name, hash.Bytes())
+	signature, err := SignTransactionHash(ctx, wallet, s.vault, hash.Bytes())
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, "error signing txn : "+err.Error(), nil)
 	}
