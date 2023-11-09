@@ -125,7 +125,13 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			}
 			response = append(response, value)
 		case "bool":
-			response = append(response, param.Value)
+			if param.Value == "true" {
+				response = append(response, true)
+			} else if param.Value == "false" {
+				response = append(response, false)
+			} else {
+				return nil, fmt.Errorf("invalid boolean value")
+			}
 		case "address":
 			response = append(response, common.HexToAddress(param.Value))
 		case "int", "int64":
