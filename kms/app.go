@@ -140,6 +140,7 @@ func (serve *Service) createWallet(c echo.Context) error {
 	}
 	return utils.SendSuccessResponse(c, "wallet created successfully", utils.WalletResponse{
 		WalletId: wallet.WalletId,
+		Address:  wallet.Address,
 	})
 }
 
@@ -165,6 +166,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	if u.To != "" {
 		to = common.HexToAddress(u.To)
 	}
+
 	client, err := utils.GetEthereumClient(ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)

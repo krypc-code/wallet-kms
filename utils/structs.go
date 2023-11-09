@@ -19,6 +19,7 @@ type WalletRequest struct {
 
 type WalletResponse struct {
 	WalletId string
+	Address  string
 }
 
 type WalletBalanceRequest struct {
