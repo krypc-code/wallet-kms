@@ -220,19 +220,19 @@ func (s *Service) submitTransaction(c echo.Context) error {
 				return utils.UnexpectedFailureResponse(c, "error decoding data : "+err.Error(), nil)
 			}
 		}
-		var estimatedGas uint64
-		if u.Gas > 0 {
-			estimatedGas = u.Gas
-		} else {
-			estimatedGas, err = client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: dataBytes, GasPrice: gasPrice})
-			if err != nil {
-				return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
-			}
-		}
+		//var estimatedGas uint64
+		//if u.Gas > 0 {
+		//	estimatedGas = u.Gas
+		//} else {
+		//	estimatedGas, err = client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: dataBytes, GasPrice: gasPrice})
+		//	if err != nil {
+		//		return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
+		//	}
+		//}
 		txn := types.NewTx(&types.LegacyTx{
 			Nonce:    nonce,
 			GasPrice: gasPrice,
-			Gas:      estimatedGas,
+			Gas:      736072, //estimatedGas,
 			Value:    big.NewInt(u.Value),
 			Data:     dataBytes,
 			To:       &to,
