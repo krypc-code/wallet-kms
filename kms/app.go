@@ -199,6 +199,12 @@ func (s *Service) submitTransaction(c echo.Context) error {
 			txnOpts.Value = big.NewInt(u.Value)
 		}
 		txnOpts.Nonce = big.NewInt(int64(nonce))
+		if u.Gas != 0 {
+			txnOpts.GasPrice = big.NewInt(int64(u.Gas))
+		}
+		if u.GasLimit != 0 {
+			txnOpts.GasLimit = u.GasLimit
+		}
 		params, err := utils.ConvertParamsAsPerTypes(u.Params)
 		if err != nil {
 			return utils.BadRequestResponse(c, "error converting params "+err.Error(), nil)
