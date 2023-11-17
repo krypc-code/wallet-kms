@@ -105,6 +105,14 @@ func healthCheck(c echo.Context) error {
 	})
 }
 
+// createWallet godoc
+// @Summary Creates Wallet
+// @Description Creates a wallet reference and generates keys for the wallet.
+// @Param	request  body	utils.WalletRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /createWallet [post]
 func (serve *Service) createWallet(c echo.Context) error {
 	ctx := c.Request().Context()
 	request := new(utils.WalletRequest)
@@ -144,6 +152,14 @@ func (serve *Service) createWallet(c echo.Context) error {
 	})
 }
 
+// submitTransaction godoc
+// @Summary Submits transaction
+// @Description Signs and submits txn onto the network.
+// @Param	request  body	utils.SignAndSubmitTxn	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /submitTransaction [post]
 func (s *Service) submitTransaction(c echo.Context) error {
 	ctx := c.Request().Context()
 	u := new(utils.SignAndSubmitTxn)
@@ -199,6 +215,12 @@ func (s *Service) submitTransaction(c echo.Context) error {
 			txnOpts.Value = big.NewInt(u.Value)
 		}
 		txnOpts.Nonce = big.NewInt(int64(nonce))
+		if u.Gas != 0 {
+			txnOpts.GasPrice = big.NewInt(int64(u.Gas))
+		}
+		if u.GasLimit != 0 {
+			txnOpts.GasLimit = u.GasLimit
+		}
 		params, err := utils.ConvertParamsAsPerTypes(u.Params)
 		if err != nil {
 			return utils.BadRequestResponse(c, "error converting params "+err.Error(), nil)
@@ -255,6 +277,14 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "Signed and executed txn successfully", &utils.DeployContractResponse{TxnHash: txnHash})
 }
 
+// deployContract godoc
+// @Summary Deploys contract
+// @Description deploys smart contract onto the network.
+// @Param	request  body	utils.DeployContractRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /deployContract [post]
 func (s *Service) deployContract(c echo.Context) error {
 	ctx := c.Request().Context()
 	u := new(utils.DeployContractRequest)
@@ -325,6 +355,14 @@ func (s *Service) deployContract(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "Signed and executed txn successfully", &utils.DeployContractResponse{TxnHash: txnHash, ContractAddress: address.String()})
 }
 
+// estimateGas godoc
+// @Summary Estimate gas
+// @Description estimates gas for the transaction.
+// @Param	request  body	utils.EstimateGasRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /estimateGas [post]
 func (s *Service) estimateGas(c echo.Context) error {
 
 	ctx := context.Background()
@@ -393,6 +431,14 @@ func (s *Service) estimateGas(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "", &utils.EstimatedGasResponse{Address: wallet.Address, EstimatedGas: estimatedGas})
 }
 
+// getBalance godoc
+// @Summary Get balance
+// @Description retrieves wallet balance for a network.
+// @Param	request  body	utils.WalletBalanceRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /getBalance [post]
 func (s *Service) getBalance(c echo.Context) error {
 	u := new(utils.WalletBalanceRequest)
 	if err := c.Bind(u); err != nil {
@@ -417,6 +463,14 @@ func (s *Service) getBalance(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "", res)
 }
 
+// callContract godoc
+// @Summary Call contract
+// @Description call contract method and retrieves values.
+// @Param	request  body	utils.CallContractRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /callContract [post]
 func (s *Service) callContract(c echo.Context) error {
 
 	ctx := context.Background()
@@ -473,6 +527,14 @@ func (s *Service) callContract(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "", &utils.CallContractResponse{Response: &response})
 }
 
+// signEIP712Txn godoc
+// @Summary Sign EIP712 data
+// @Description sign EIP712 typed data.
+// @Param	request  body	utils.EIP712SignRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /signEIP712Tx [post]
 func (s *Service) signEIP712Txn(c echo.Context) error {
 	u := new(utils.EIP712SignRequest)
 	if err := c.Bind(u); err != nil {
@@ -502,6 +564,14 @@ func (s *Service) signEIP712Txn(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "Data signed successfully", signature)
 }
 
+// signMessage godoc
+// @Summary Sign message
+// @Description sign message and return signature.
+// @Param	request  body	utils.SignMsgRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /signMessage [post]
 func (s *Service) signMessage(c echo.Context) error {
 	ctx := c.Request().Context()
 	u := new(utils.SignMsgRequest)
@@ -531,6 +601,14 @@ func (s *Service) signMessage(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "Signed message successfully", "0x"+hex.EncodeToString(signature))
 }
 
+// verifySignatureOffChain godoc
+// @Summary Verify signature
+// @Description verifies signature offline.
+// @Param	request  body	utils.VerifyMsgRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /verifySignatureOffChain [post]
 func (s *Service) verifySignatureOffChain(c echo.Context) error {
 	u := new(utils.VerifyMsgRequest)
 	if err := c.Bind(u); err != nil {
@@ -573,6 +651,14 @@ func (s *Service) verifySignatureOffChain(c echo.Context) error {
 	return utils.SendSuccessResponse(c, "", &utils.VerifyMsgResponse{IsVerified: isVerified})
 }
 
+// signAndSubmitGaslessTransaction godoc
+// @Summary Submit gasless transaction
+// @Description signs and submits gasless transaction onto network.
+// @Param	request  body	utils.SignAndSubmitGSNTxnRequest	true	"Request Body"
+// @Accept json
+// @Produce json
+// @Success 200 	{object} 	utils.ResponseBody
+// @Router /signAndSubmitGaslessTxn [post]
 func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
 
 	ctx := context.Background()

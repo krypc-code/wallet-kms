@@ -50,6 +50,7 @@ type SignAndSubmitTxn struct {
 	WalletId string  `json:"walletId"`
 	To       string  `json:"to"`
 	Gas      uint64  `json:"gas"`
+	GasLimit uint64  `json:"gasLimit"`
 	Value    int64   `json:"value"`
 	Method   string  `json:"method"`
 	Params   []Param `json:"params"`

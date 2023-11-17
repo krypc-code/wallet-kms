@@ -1,0 +1,383 @@
+basePath: /wallet
+definitions:
+  utils.CallContractRequest:
+    properties:
+      contractABI:
+        example: hello
+        type: string
+      gas:
+        type: integer
+      method:
+        example: store
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/utils.Param'
+        type: array
+      to:
+        example: 0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10
+        type: string
+      value:
+        type: integer
+      walletId:
+        type: string
+    type: object
+  utils.DeployContractRequest:
+    properties:
+      abi:
+        type: string
+      byteCode:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/utils.Param'
+        type: array
+      walletId:
+        type: string
+    type: object
+  utils.EIP712SignRequest:
+    properties:
+      data:
+        type: string
+      walletId:
+        type: string
+    type: object
+  utils.EstimateGasRequest:
+    properties:
+      byteCode:
+        type: string
+      contractABI:
+        type: string
+      data:
+        type: string
+      gas:
+        type: integer
+      isContractTxn:
+        type: boolean
+      method:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/utils.Param'
+        type: array
+      to:
+        type: string
+      value:
+        type: integer
+      walletId:
+        type: string
+    type: object
+  utils.Param:
+    properties:
+      type:
+        type: string
+      value:
+        type: string
+    type: object
+  utils.ResponseBody:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  utils.SignAndSubmitGSNTxnRequest:
+    properties:
+      chainId:
+        example: 80001
+        type: integer
+      contractABI:
+        example: ""
+        type: string
+      dAppId:
+        type: string
+      gas:
+        type: integer
+      method:
+        example: store
+        type: string
+      params:
+        items: {}
+        type: array
+      to:
+        example: store
+        type: string
+      value:
+        type: integer
+      walletId:
+        type: string
+    type: object
+  utils.SignAndSubmitTxn:
+    properties:
+      contractABI:
+        type: string
+      data:
+        type: string
+      gas:
+        type: integer
+      gasLimit:
+        type: integer
+      isContractTxn:
+        description: Params        []interface{} `json:"params"`
+        type: boolean
+      method:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/utils.Param'
+        type: array
+      to:
+        type: string
+      value:
+        type: integer
+      walletId:
+        type: string
+    type: object
+  utils.SignMsgRequest:
+    properties:
+      message:
+        type: string
+      walletId:
+        type: string
+    type: object
+  utils.VerifyMsgRequest:
+    properties:
+      message:
+        type: string
+      signature:
+        type: string
+      walletId:
+        type: string
+    type: object
+  utils.WalletBalanceRequest:
+    properties:
+      chainId:
+        type: string
+      walletId:
+        type: string
+    type: object
+  utils.WalletRequest:
+    properties:
+      algorithm:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8889
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: KMS Wallet Implementation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: KMS Wallet
+  version: "1.0"
+paths:
+  /callContract:
+    post:
+      consumes:
+      - application/json
+      description: call contract method and retrieves values.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.CallContractRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Call contract
+  /createWallet:
+    post:
+      consumes:
+      - application/json
+      description: Creates a wallet reference and generates keys for the wallet.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.WalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Creates Wallet
+  /deployContract:
+    post:
+      consumes:
+      - application/json
+      description: deploys smart contract onto the network.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.DeployContractRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Deploys contract
+  /estimateGas:
+    post:
+      consumes:
+      - application/json
+      description: estimates gas for the transaction.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.EstimateGasRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Estimate gas
+  /getBalance:
+    post:
+      consumes:
+      - application/json
+      description: retrieves wallet balance for a network.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.WalletBalanceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Get balance
+  /signAndSubmitGaslessTxn:
+    post:
+      consumes:
+      - application/json
+      description: signs and submits gasless transaction onto network.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.SignAndSubmitGSNTxnRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Submit gasless transaction
+  /signEIP712Tx:
+    post:
+      consumes:
+      - application/json
+      description: sign EIP712 typed data.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.EIP712SignRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Sign EIP712 data
+  /signMessage:
+    post:
+      consumes:
+      - application/json
+      description: sign message and return signature.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.SignMsgRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Sign message
+  /submitTransaction:
+    post:
+      consumes:
+      - application/json
+      description: Signs and submits txn onto the network.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.SignAndSubmitTxn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Submits transaction
+  /verifySignatureOffChain:
+    post:
+      consumes:
+      - application/json
+      description: verifies signature offline.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/utils.VerifyMsgRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseBody'
+      summary: Verify signature
+schemes:
+- https
+swagger: "2.0"
