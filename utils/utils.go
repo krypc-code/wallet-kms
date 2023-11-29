@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -94,7 +95,8 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		case "string":
 			response = append(response, param.Value)
 		case "[]string":
-			response = append(response, param.Value)
+			strarray := strings.Split(param.Value, ",")
+			response = append(response, strarray)
 		case "uint", "uint64":
 			value, err := strconv.ParseUint(param.Value, 10, 64)
 			if err != nil {
