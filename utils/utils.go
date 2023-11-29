@@ -93,6 +93,8 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		switch param.Type {
 		case "string":
 			response = append(response, param.Value)
+		case "[]string":
+			response = append(response, param.Value)
 		case "uint", "uint64":
 			value, err := strconv.ParseUint(param.Value, 10, 64)
 			if err != nil {
