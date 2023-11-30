@@ -423,7 +423,7 @@ func (s *Service) estimateGas(c echo.Context) error {
 			}
 		}
 	}
-	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: data})
+	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: data, Gas: 21000})
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 		return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
