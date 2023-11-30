@@ -386,10 +386,10 @@ func (s *Service) estimateGas(c echo.Context) error {
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	gasPrice, err := client.SuggestGasPrice(ctx)
-	if err != nil {
-		return utils.UnexpectedFailureResponse(c, "error calculating gas price : "+err.Error(), nil)
-	}
+	// gasPrice, err := client.SuggestGasPrice(ctx)
+	// if err != nil {
+	// 	return utils.UnexpectedFailureResponse(c, "error calculating gas price : "+err.Error(), nil)
+	// }
 	var to common.Address
 	if u.To != "" {
 		to = common.HexToAddress(u.To)
@@ -423,7 +423,7 @@ func (s *Service) estimateGas(c echo.Context) error {
 			}
 		}
 	}
-	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: data, GasPrice: gasPrice})
+	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: data})
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 		return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
