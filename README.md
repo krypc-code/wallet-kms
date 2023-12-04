@@ -98,7 +98,7 @@ Ensure that you keep the downloaded keys and root token secure.
 Once the Vault service is running and initialized successfully,update the environment variables in the `docker-compose-kms.yaml` file as follows:
 
 ```yaml
-"VAULT_URL": "http://127.0.0.1:8200",
+"VAULT_URL": "http://vault:8200",
 "VAULT_TOKEN": "hvs.xxxxxxxxxxxxxxxxx",
 "AUTH_TOKEN": "abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6",
 "PROXY_URL": "http://localhost:8888",
