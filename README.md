@@ -98,7 +98,7 @@ Ensure that you keep the downloaded keys and root token secure.
 Once the Vault service is running and initialized successfully,update the environment variables in the `docker-compose-kms.yaml` file as follows:
 
 ```yaml
-"VAULT_URL": "http://127.0.0.1:8200",
+"VAULT_URL": "http://vault:8200",
 "VAULT_TOKEN": "hvs.xxxxxxxxxxxxxxxxx",
 "AUTH_TOKEN": "abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6",
 "PROXY_URL": "http://localhost:8888",
@@ -121,7 +121,7 @@ sudo docker-compose -f docker-compose-kms.yaml up -d
 After the self-managed wallet service is up and running, use the following curl command to create a wallet:
 
 ```bash
-curl -d '{"name":"wallet2", "algorithm": "secp256k1"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/createWallet
+curl -d '{"name":"wallet2", "algorithm": "secp256k1"}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/createWallet
 ```
 
 You will receive a response with a unique wallet ID, which you can use for further operations.
@@ -139,7 +139,7 @@ curl -d '{
   "params": [{"type": "uint256", "value": "35"}],
   "isContractTxn": true,
   "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
-}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/submitTransaction
+}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/submitTransaction
 ```
 
 ### Deploying a Smart Contract
@@ -152,7 +152,7 @@ curl -d '{
   "byteCode": "",
   "abi": "",
   "params": []
-}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/deployContract
+}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/deployContract
 ```
 
 This will allow you to deploy a smart contract and receive a transaction hash and contract address in response.
@@ -170,7 +170,7 @@ curl -d '{
   "params": [{"type": "uint256", "value": "35"}],
   "isContractTxn": true,
   "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
-}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/estimateGas
+}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/estimateGas
 ```
 
 ### Get Wallet Balance
@@ -180,7 +180,7 @@ To get balance of a wallet, use the following curl command:
 ```bash
 curl -d '{
   "walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","chainId": "80001"
-}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/getBalance
+}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/getBalance
 ```
 
 ### Call Contract Method
@@ -194,7 +194,7 @@ curl -d '{
   "method": "store",
   "params": [{"type": "uint256", "value": "35"}],
   "contractABI": "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"num\",\"type\":\"uint256\"}],\"name\":\"store\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"retrieve\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
-}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/callContract
+}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/callContract
 ```
 
 ### Sign Message
@@ -202,7 +202,7 @@ curl -d '{
 To sign a message, use the following curl command:
 
 ```bash
-curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/signMessage
+curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello"}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/signMessage
 ```
 
 ### Verify Signature Offchain
@@ -210,7 +210,7 @@ curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello"}'
 To verify signature offchain, use the following curl command:
 
 ```bash
-curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello","signature":"0x0274ba1a35dd8dfcf279a660f970985036c1432ceead1e05b81443b9d94bac403e4e2e8dbab494fe428e212ed0e9b2f8ebac327c5971dc461c9b147bc33fbc5301"}' -H "Content-Type: application/json" -X POST http://localhost:8889/wallet/verifySignatureOffChain
+curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello","signature":"0x0274ba1a35dd8dfcf279a660f970985036c1432ceead1e05b81443b9d94bac403e4e2e8dbab494fe428e212ed0e9b2f8ebac327c5971dc461c9b147bc33fbc5301"}' -H "Content-Type: application/json" -X POST http://localhost:8888/wallet/verifySignatureOffChain
 ```
 
 ### Sign and Submit Gasless Transaction
@@ -218,7 +218,7 @@ curl -d '{"walletId": "effae2b6-3ee3-48cb-9528-87c29152c89e","message":"Hello","
 To Sign and Submit Gasless Transaction, use the following curl command:
 
 ```bash
-curl --location 'http://localhost:8889/wallet/signAndSubmitGaslessTxn' \
+curl --location 'http://localhost:8888/wallet/signAndSubmitGaslessTxn' \
 --header 'Authorization: fa4b9b58-57e9-4772-af79-6353f61dd78b' \
 --header 'Content-Type: application/json' \
 --data '{
