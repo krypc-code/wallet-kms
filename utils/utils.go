@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -128,6 +129,14 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			response = append(response, param.Value)
 		case "address":
 			response = append(response, common.HexToAddress(param.Value))
+
+		case "[]address":
+			addressesParam := []common.Address{}
+			addresses := strings.Split(param.Value, ",")
+			for _, address := range addresses {
+				addressesParam = append(addressesParam, common.HexToAddress(address))
+			}
+			response = append(response, addressesParam)
 		case "int", "int64":
 			value, err := strconv.ParseInt(param.Value, 10, 64)
 			if err != nil {
