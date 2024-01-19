@@ -188,6 +188,19 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			}
 			copy(value[:], bytes)
 			response = append(response, value)
+		case "[]bytes32":
+			params := [][32]byte{}
+			paramsStr := strings.Split(param.Value, ",")
+			for _, param := range paramsStr {
+				var value [32]byte
+				bytes, err := base64.RawStdEncoding.DecodeString(param)
+				if err != nil {
+					return nil, err
+				}
+				copy(value[:], bytes)
+				params = append(params, value)
+			}
+			response = append(response, params)
 		case "bytes4":
 			var value [4]byte
 			bytes, err := base64.RawStdEncoding.DecodeString(param.Value)
