@@ -267,11 +267,15 @@ func HttpCall(method string, url string, body interface{}, restype interface{}, 
 	return nil
 }
 
-func GetEthereumClient(ctx context.Context, config *Config) (*ethclient.Client, error) {
+func GetEthereumClient(c echo.Context, ctx context.Context, config *Config) (*ethclient.Client, error) {
 	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
 	header.Set("Authorization", config.AuthToken)
 	header.Set("instanceId", config.InstanceId)
+	if c != nil {
+		header.Set("requestId", c.Request().Header.Get("requestId"))
+		header.Set("hopCount", c.Request().Header.Get("hopCount"))
+	}
 	options := rpc.WithHeaders(header)
 	rpcClient, err := rpc.DialOptions(ctx, config.Endpoint, options)
 	if err != nil {

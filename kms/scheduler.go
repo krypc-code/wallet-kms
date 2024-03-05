@@ -52,7 +52,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		client, err := utils.GetEthereumClient(ctx, s.config)
+		client, err := utils.GetEthereumClient(nil, ctx, s.config)
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 			continue
@@ -67,7 +67,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+		nonce, err := utils.GetNonceFromPlatform(nil, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 			continue
@@ -99,7 +99,7 @@ func (s *Service) DeployContracts(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txn.Hash().String(),
+		err = utils.UpdatePlatformNonce(nil, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txn.Hash().String(),
 			ContractAddress: address.String(), Type: "deploy", ReferenceId: record.ReferenceId})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
@@ -132,7 +132,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 		if record.To != "" {
 			to = common.HexToAddress(record.To)
 		}
-		client, err := utils.GetEthereumClient(ctx, s.config)
+		client, err := utils.GetEthereumClient(nil, ctx, s.config)
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 			continue
@@ -142,7 +142,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 			s.e.Logger.Errorf(err.Error())
 			continue
 		}
-		nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+		nonce, err := utils.GetNonceFromPlatform(nil, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())
 			continue
@@ -225,7 +225,7 @@ func (s *Service) SubmitTransactions(ctx context.Context) {
 			}
 			txnHash = txn.Hash().String()
 		}
-		err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash,
+		err = utils.UpdatePlatformNonce(nil, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String(), TxnHash: txnHash,
 			Type: "txn", ReferenceId: record.ReferenceId})
 		if err != nil {
 			s.e.Logger.Errorf(err.Error())

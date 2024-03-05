@@ -23,13 +23,17 @@ func AddWalletToPlatform(config *Config, request *AddWalletRequest) error {
 	return nil
 }
 
-func GetNonceFromPlatform(config *Config, request *NonceRequest) (uint64, error) {
+func GetNonceFromPlatform(c echo.Context, config *Config, request *NonceRequest) (uint64, error) {
 	res := ResponseBody{}
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = config.AuthToken
 	header["InstanceId"] = config.InstanceId
 	header["SubscriptionId"] = config.SubscriptionId
+	if c != nil {
+		header["requestId"] = c.Request().Header.Get("requestId")
+		header["hopCount"] = c.Request().Header.Get("hopCount")
+	}
 	if err := HttpCall("POST", config.ProxyUrl+GetWalletNonce, request, &res, header); err != nil {
 		return 0, err
 	}
@@ -43,13 +47,17 @@ func GetNonceFromPlatform(config *Config, request *NonceRequest) (uint64, error)
 	return uint64(nonce), nil
 }
 
-func UpdatePlatformNonce(config *Config, request *NonceRequest) error {
+func UpdatePlatformNonce(c echo.Context, config *Config, request *NonceRequest) error {
 	res := ResponseBody{}
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = config.AuthToken
 	header["InstanceId"] = config.InstanceId
 	header["SubscriptionId"] = config.SubscriptionId
+	if c != nil {
+		header["requestId"] = c.Request().Header.Get("requestId")
+		header["hopCount"] = c.Request().Header.Get("hopCount")
+	}
 	if err := HttpCall("POST", config.ProxyUrl+UpdateWalletNonce, request, &res, header); err != nil {
 		return err
 	}

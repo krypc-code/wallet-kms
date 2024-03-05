@@ -183,7 +183,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		to = common.HexToAddress(u.To)
 	}
 
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	client, err := utils.GetEthereumClient(c, ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -191,7 +191,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 	if err != nil {
 		s.e.Logger.Errorf(err.Error())
 	}
-	nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	nonce, err := utils.GetNonceFromPlatform(c, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -270,7 +270,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		}
 		txnHash = txn.Hash().String()
 	}
-	err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	err = utils.UpdatePlatformNonce(c, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -304,7 +304,7 @@ func (s *Service) deployContract(c echo.Context) error {
 	if err := json.Unmarshal(walletBytes, wallet); err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	client, err := utils.GetEthereumClient(c, ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -318,7 +318,7 @@ func (s *Service) deployContract(c echo.Context) error {
 		s.e.Logger.Errorf(err.Error())
 		return utils.UnexpectedFailureResponse(c, "ABI string error "+err.Error(), nil)
 	}
-	nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	nonce, err := utils.GetNonceFromPlatform(c, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -347,7 +347,7 @@ func (s *Service) deployContract(c echo.Context) error {
 		s.e.Logger.Errorf(err.Error())
 		return utils.UnexpectedFailureResponse(c, "error deploying contract "+err.Error(), nil)
 	}
-	err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	err = utils.UpdatePlatformNonce(c, s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -382,7 +382,7 @@ func (s *Service) estimateGas(c echo.Context) error {
 	if err := json.Unmarshal(walletBytes, wallet); err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	client, err := utils.GetEthereumClient(c, ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -493,7 +493,7 @@ func (s *Service) callContract(c echo.Context) error {
 	if err := json.Unmarshal(walletBytes, wallet); err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	client, err := utils.GetEthereumClient(c, ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
@@ -680,7 +680,7 @@ func (s *Service) signAndSubmitGaslessTransaction(c echo.Context) error {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
 
-	client, err := utils.GetEthereumClient(ctx, s.config)
+	client, err := utils.GetEthereumClient(c, ctx, s.config)
 	if err != nil {
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
