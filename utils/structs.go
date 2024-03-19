@@ -114,6 +114,7 @@ type Deploy struct {
 	ByteCode       string  `json:"byteCode"`
 	ABI            string  `json:"abi"`
 	Params         []Param `json:"params"`
+	Gas            uint64  `json:"gas,omitempty"`
 }
 
 type Transaction struct {
