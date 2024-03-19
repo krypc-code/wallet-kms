@@ -82,7 +82,11 @@ func (s *Service) DeployContracts(ctx context.Context) {
 		feeCap, _ := client.SuggestGasPrice(ctx)
 		transactOpts.GasFeeCap = feeCap
 		transactOpts.GasTipCap = tipCap
-		transactOpts.GasLimit = 5000000 // Todo Need an attention
+		if record.Gas > 0 {
+			transactOpts.GasLimit = record.Gas
+		} else {
+			transactOpts.GasLimit = 5000000 // Todo Need an attention
+		}
 		contractMeta := ContractMetadata{
 			ABI:     string(rawDecodedText),
 			Bin:     record.ByteCode,
