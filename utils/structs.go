@@ -5,11 +5,8 @@ const (
 )
 
 type Config struct {
-	AuthToken      string
-	ProxyUrl       string
-	Endpoint       string
-	InstanceId     string
-	SubscriptionId string
+	SORBaseURL string
+	ProxyUrl   string // retained for gasless txn path only
 }
 
 type WalletRequest struct {
@@ -36,6 +33,7 @@ type TransactionResponse struct {
 
 type DeployContractRequest struct {
 	WalletId string  `json:"walletId"`
+	ChainId  string  `json:"chainId"`
 	ByteCode string  `json:"byteCode"`
 	ABI      string  `json:"abi"`
 	Params   []Param `json:"params"`
@@ -47,21 +45,22 @@ type DeployContractResponse struct {
 }
 
 type SignAndSubmitTxn struct {
-	WalletId string  `json:"walletId"`
-	To       string  `json:"to"`
-	Gas      uint64  `json:"gas"`
-	GasLimit uint64  `json:"gasLimit"`
-	Value    int64   `json:"value"`
-	Method   string  `json:"method"`
-	Params   []Param `json:"params"`
-	// Params        []interface{} `json:"params"`
-	IsContractTxn bool   `json:"isContractTxn"`
-	ContractABI   string `json:"contractABI"`
-	Data          string `json:"data"`
+	WalletId      string  `json:"walletId"`
+	ChainId       string  `json:"chainId"`
+	To            string  `json:"to"`
+	Gas           uint64  `json:"gas"`
+	GasLimit      uint64  `json:"gasLimit"`
+	Value         int64   `json:"value"`
+	Method        string  `json:"method"`
+	Params        []Param `json:"params"`
+	IsContractTxn bool    `json:"isContractTxn"`
+	ContractABI   string  `json:"contractABI"`
+	Data          string  `json:"data"`
 }
 
 type EstimateGasRequest struct {
 	WalletId      string  `json:"walletId"`
+	ChainId       string  `json:"chainId"`
 	To            string  `json:"to,omitempty"`
 	Gas           uint64  `json:"gas,omitempty"`
 	Value         int64   `json:"value,omitempty"`
@@ -135,6 +134,7 @@ type Transaction struct {
 
 type CallContractRequest struct {
 	WalletId    string  `json:"walletId"`
+	ChainId     string  `json:"chainId"`
 	To          string  `json:"to,omitempty" example:"0xc2de797fab7d2d2b26246e93fcf2cd5873a90b10"`
 	Gas         uint64  `json:"gas,omitempty"`
 	Value       int64   `json:"value,omitempty"`

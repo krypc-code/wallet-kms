@@ -26,6 +26,7 @@ type Wallet struct {
 	Address   string
 	Algorithm string
 	WalletId  string
+	VaultPath string // tenant-scoped path: {tenantID}/{walletId}; falls back to Name if empty
 }
 
 type ecPrivateKey struct {
@@ -66,8 +67,15 @@ type pkcs1AdditionalRSAPrime struct {
 
 const ecPrivKeyVersion = 1
 
+func (w *Wallet) vaultKey() string {
+	if w.VaultPath != "" {
+		return w.VaultPath
+	}
+	return w.Name
+}
+
 func (w *Wallet) generateKey(ctx context.Context, vault vault.Vault) error {
-	data, _ := vault.GetSecret(ctx, w.Name)
+	data, _ := vault.GetSecret(ctx, w.vaultKey())
 	if data != nil {
 		return fmt.Errorf("key exist with specified name")
 	}
@@ -108,7 +116,7 @@ func (w *Wallet) generateKey(ctx context.Context, vault vault.Vault) error {
 	default:
 		return fmt.Errorf("invalid algorithm")
 	}
-	if err := vault.AddSecret(ctx, w.Name, secret); err != nil {
+	if err := vault.AddSecret(ctx, w.vaultKey(), secret); err != nil {
 		return err
 	}
 	return nil

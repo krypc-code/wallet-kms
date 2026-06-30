@@ -107,7 +107,7 @@ func TransactionOptionsWithKMSSigning(ctx context.Context, w *Wallet, vault vaul
 
 func SignTransactionHash(ctx context.Context, w *Wallet, vault vault.Vault, transactionHash []byte) ([]byte, error) {
 	var signature []byte
-	data, err := vault.GetSecret(ctx, w.Name)
+	data, err := vault.GetSecret(ctx, w.vaultKey())
 	if err != nil {
 		return nil, err
 	}

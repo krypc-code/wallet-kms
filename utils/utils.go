@@ -267,18 +267,19 @@ func HttpCall(method string, url string, body interface{}, restype interface{}, 
 	return nil
 }
 
-func GetEthereumClient(ctx context.Context, config *Config) (*ethclient.Client, error) {
+// GetEthereumClientViaSOR creates an ethclient backed by the SOR JSON-RPC proxy
+// for the given chain. X-Tenant-ID is forwarded so SOR can authenticate the call.
+func GetEthereumClientViaSOR(ctx context.Context, sorBaseURL, chainID, tenantID string) (*ethclient.Client, error) {
+	endpoint := sorBaseURL + "/v1/rpc/" + chainID
 	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
-	header.Set("Authorization", config.AuthToken)
-	header.Set("instanceId", config.InstanceId)
+	header.Set("X-Tenant-ID", tenantID)
 	options := rpc.WithHeaders(header)
-	rpcClient, err := rpc.DialOptions(ctx, config.Endpoint, options)
+	rpcClient, err := rpc.DialOptions(ctx, endpoint, options)
 	if err != nil {
 		return nil, err
 	}
-	client := ethclient.NewClient(rpcClient)
-	return client, nil
+	return ethclient.NewClient(rpcClient), nil
 }
 
 func ValidateAlgorithm(algorithm string) (string, error) {
