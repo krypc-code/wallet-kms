@@ -7,7 +7,6 @@ services:
       - 0.0.0.0:8888:8889
     environment:
       - VAULT_URL=http://vault:8200
-      - VAULT_TOKEN=hvs.xxxxxxxxxxxxxxxxx
       - AUTH_TOKEN=abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6
       - PROXY_URL=http://localhost:8888
       - ENDPOINT=https://polygon-mumbai-dev-node.krypcore.com/api/v0/rpc?apiKey=1ddc4575-xxxx-xxxx-xxxx-9d8a7a4086aa&token=abd3789a-xxxx-xxxx-xxxx-ed65a2c2e7f6
