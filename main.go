@@ -1,6 +1,15 @@
 package main
 
-import "wallet-kms/kms"
+import (
+	"wallet-kms/kms"
+
+	"github.com/joho/godotenv"
+)
+
+func init() {
+	// Load .env if present; ignore error when file is absent (prod uses real env vars).
+	_ = godotenv.Load()
+}
 
 // @title KMS Wallet
 // @version 1.0
