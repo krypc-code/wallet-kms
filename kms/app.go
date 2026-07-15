@@ -72,7 +72,7 @@ func initService() *Service {
 
 func Run() {
 	service := initService()
-	g := service.e.Group("/wallet")
+	g := service.e.Group("/api/v1/wallet")
 
 	g.GET("/health", healthCheck)
 
