@@ -94,6 +94,18 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		switch param.Type {
 		case "string":
 			response = append(response, param.Value)
+		case "[]string": // 👈 ADD THIS CASE
+			// Parse the JSON array string back to []string
+			var strArr []string
+			if err := json.Unmarshal([]byte(param.Value), &strArr); err != nil {
+				// Fallback: split by comma if JSON parsing fails
+				strArr = strings.Split(param.Value, ",")
+				// Trim spaces
+				for i := range strArr {
+					strArr[i] = strings.TrimSpace(strArr[i])
+				}
+			}
+			response = append(response, strArr)
 		case "uint", "uint64":
 			value, err := strconv.ParseUint(param.Value, 10, 64)
 			if err != nil {
