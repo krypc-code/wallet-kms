@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -44,6 +45,9 @@ func GetNonceFromPlatform(config *Config, request *NonceRequest) (uint64, error)
 }
 
 func UpdatePlatformNonce(config *Config, request *NonceRequest) error {
+	if strings.TrimSpace(config.ProxyUrl) == "" {
+		return fmt.Errorf("PROXY_URL is empty")
+	}
 	res := ResponseBody{}
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
@@ -51,10 +55,10 @@ func UpdatePlatformNonce(config *Config, request *NonceRequest) error {
 	header["InstanceId"] = config.InstanceId
 	header["SubscriptionId"] = config.SubscriptionId
 	if err := HttpCall("POST", config.ProxyUrl+UpdateWalletNonce, request, &res, header); err != nil {
-		return err
+		return fmt.Errorf("platform nonce update request to %s failed: %w", config.ProxyUrl+UpdateWalletNonce, err)
 	}
 	if res.Status == "FAILURE" {
-		return fmt.Errorf(res.Message)
+		return fmt.Errorf("platform rejected nonce update (%s): %s", config.ProxyUrl+UpdateWalletNonce, res.Message)
 	}
 	return nil
 }

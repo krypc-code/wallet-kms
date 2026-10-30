@@ -94,6 +94,18 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 		switch param.Type {
 		case "string":
 			response = append(response, param.Value)
+		case "[]string": // 👈 ADD THIS CASE
+			// Parse the JSON array string back to []string
+			var strArr []string
+			if err := json.Unmarshal([]byte(param.Value), &strArr); err != nil {
+				// Fallback: split by comma if JSON parsing fails
+				strArr = strings.Split(param.Value, ",")
+				// Trim spaces
+				for i := range strArr {
+					strArr[i] = strings.TrimSpace(strArr[i])
+				}
+			}
+			response = append(response, strArr)
 		case "uint", "uint64":
 			value, err := strconv.ParseUint(param.Value, 10, 64)
 			if err != nil {
@@ -188,6 +200,16 @@ func ConvertParamsAsPerTypes(params []Param) ([]interface{}, error) {
 			}
 			copy(value[:], bytes)
 			response = append(response, value)
+		case "[]bytes":
+			params := [][]byte{}
+			for _, item := range strings.Split(param.Value, ",") {
+				bytes, err := base64.RawStdEncoding.DecodeString(item)
+				if err != nil {
+					return nil, err
+				}
+				params = append(params, bytes)
+			}
+			response = append(response, params)
 		case "[]bytes32":
 			params := [][32]byte{}
 			paramsStr := strings.Split(param.Value, ",")
@@ -266,21 +288,37 @@ func HttpCall(method string, url string, body interface{}, restype interface{}, 
 	}
 	return nil
 }
-
 func GetEthereumClient(ctx context.Context, config *Config) (*ethclient.Client, error) {
+	endpoint := strings.TrimSpace(config.Endpoint)
+
+	fmt.Println("RPC endpoint:", endpoint)
+
+	if endpoint == "" {
+		return nil, fmt.Errorf("ENDPOINT is empty")
+	}
+
 	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
 	header.Set("Authorization", config.AuthToken)
 	header.Set("instanceId", config.InstanceId)
-	options := rpc.WithHeaders(header)
-	rpcClient, err := rpc.DialOptions(ctx, config.Endpoint, options)
+
+	rpcClient, err := rpc.DialOptions(ctx, endpoint, rpc.WithHeaders(header))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("RPC dial failed for endpoint %q: %w", endpoint, err)
 	}
+
 	client := ethclient.NewClient(rpcClient)
+
+	chainID, err := client.ChainID(ctx)
+	if err != nil {
+		client.Close()
+		return nil, fmt.Errorf("RPC connected but fetching chain ID failed: %w", err)
+	}
+
+	fmt.Println("Connected to RPC; chain ID:", chainID.String())
+
 	return client, nil
 }
-
 func ValidateAlgorithm(algorithm string) (string, error) {
 	switch algorithm {
 	case "ed25519":

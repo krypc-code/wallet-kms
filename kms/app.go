@@ -185,15 +185,27 @@ func (s *Service) submitTransaction(c echo.Context) error {
 
 	client, err := utils.GetEthereumClient(ctx, s.config)
 	if err != nil {
+		s.e.Logger.Errorf("submitTransaction: RPC dial/ChainID failed: %v", err)
 		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 	}
 	chainId, err := client.ChainID(ctx)
 	if err != nil {
-		s.e.Logger.Errorf(err.Error())
+		s.e.Logger.Errorf("submitTransaction: ChainID failed: %v", err)
+		return utils.UnexpectedFailureResponse(
+			c,
+			"error fetching chain ID: "+err.Error(),
+			nil,
+		)
 	}
-	nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	// nonce, err := utils.GetNonceFromPlatform(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	// if err != nil {
+	// 	s.e.Logger.Errorf("submitTransaction: GetNonceFromPlatform failed: %v", err)
+	// 	return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	// }
+	nonce, err := client.PendingNonceAt(ctx, common.HexToAddress(wallet.Address))
 	if err != nil {
-		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+		s.e.Logger.Errorf("submitTransaction: PendingNonceAt failed: %v", err)
+		return utils.UnexpectedFailureResponse(c, "error fetching pending nonce: "+err.Error(), nil)
 	}
 	var txnHash string
 	if u.IsContractTxn {
@@ -227,12 +239,14 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		}
 		txn, err := contract.SmartContractTransactor.Contract.Transact(txnOpts, u.Method, params...)
 		if err != nil {
+			s.e.Logger.Errorf("submitTransaction: contract Transact failed: %v", err)
 			return utils.UnexpectedFailureResponse(c, "error sending txn to contract : "+err.Error(), nil)
 		}
 		txnHash = txn.Hash().String()
 	} else {
 		gasPrice, err := client.SuggestGasPrice(ctx)
 		if err != nil {
+			s.e.Logger.Errorf("submitTransaction: SuggestGasPrice failed: %v", err)
 			return utils.UnexpectedFailureResponse(c, "error calculating gas price : "+err.Error(), nil)
 		}
 		var dataBytes []byte
@@ -248,6 +262,7 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		} else {
 			estimatedGas, err = client.EstimateGas(ctx, ethereum.CallMsg{From: common.HexToAddress(wallet.Address), To: &to, Value: big.NewInt(u.Value), Data: dataBytes, GasPrice: gasPrice})
 			if err != nil {
+				s.e.Logger.Errorf("submitTransaction: EstimateGas failed: %v", err)
 				return utils.UnexpectedFailureResponse(c, "error estimating gas : "+err.Error(), nil)
 			}
 		}
@@ -261,19 +276,25 @@ func (s *Service) submitTransaction(c echo.Context) error {
 		})
 		signer := types.LatestSignerForChainID(chainId)
 		signature, err := SignTransactionHash(ctx, wallet, s.vault, txn.Hash().Bytes())
+		if err != nil {
+			s.e.Logger.Errorf("submitTransaction: signing failed: %v", err)
+			return utils.UnexpectedFailureResponse(c, "error signing txn : "+err.Error(), nil)
+		}
 		txn, err = txn.WithSignature(signer, signature)
 		if err != nil {
 			return utils.UnexpectedFailureResponse(c, err.Error(), nil)
 		}
 		if err := client.SendTransaction(ctx, txn); err != nil {
+			s.e.Logger.Errorf("submitTransaction: SendTransaction failed: %v", err)
 			return utils.UnexpectedFailureResponse(c, "error executing txn : "+err.Error(), nil)
 		}
 		txnHash = txn.Hash().String()
 	}
-	err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
-	if err != nil {
-		return utils.UnexpectedFailureResponse(c, err.Error(), nil)
-	}
+	// err = utils.UpdatePlatformNonce(s.config, &utils.NonceRequest{WalletId: wallet.WalletId, ChainId: chainId.String()})
+	// if err != nil {
+	// 	s.e.Logger.Errorf("submitTransaction: UpdatePlatformNonce failed: %v", err)
+	// 	return utils.UnexpectedFailureResponse(c, err.Error(), nil)
+	// }
 	return utils.SendSuccessResponse(c, "Signed and executed txn successfully", &utils.DeployContractResponse{TxnHash: txnHash})
 }
 
